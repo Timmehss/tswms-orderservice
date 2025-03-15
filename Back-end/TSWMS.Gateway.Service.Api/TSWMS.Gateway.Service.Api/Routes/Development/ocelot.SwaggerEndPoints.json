@@ -1,11 +1,10 @@
-﻿{
+{
   "SwaggerEndPoints": [
     {
       "Key": "users",
-      "TransformByOcelotConfig": true,
       "Config": [
         {
-          "Name": "UserService.API",
+          "Name": "User.Service.Api",
           "Version": "dev",
           "Url": "https://localhost:3100/swagger/v1/swagger.json"
         }
