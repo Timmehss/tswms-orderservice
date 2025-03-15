@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSWMS.UserService.Shared\TSWMS.UserService.Shared.csproj" />
+    <ProjectReference Include="..\TSWMS.User.Service.Shared\TSWMS.UserService.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace UserService.Shared.Models;
+﻿namespace TSWMS.UserService.Shared.Models;
 
 public class User
 {

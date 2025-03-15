@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserService.Shared.Models;
+using TSWMS.UserService.Shared.Models;
 
-namespace UserService.Data;
+namespace TSWMS.UserService.Data;
 
 public class UserDbContext : DbContext
 {

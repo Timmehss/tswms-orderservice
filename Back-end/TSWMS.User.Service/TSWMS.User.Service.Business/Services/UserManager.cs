@@ -1,6 +1,5 @@
 ﻿using TSWMS.UserService.Shared.Interfaces;
-using UserService.Shared.Interfaces;
-using UserService.Shared.Models;
+using TSWMS.UserService.Shared.Models;
 
 namespace TSWMS.UserService.Business.Services;
 

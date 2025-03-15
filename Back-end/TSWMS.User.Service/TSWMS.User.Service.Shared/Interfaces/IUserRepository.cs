@@ -2,9 +2,9 @@
 
 #endregion
 
-using UserService.Shared.Models;
+using TSWMS.UserService.Shared.Models;
 
-namespace UserService.Shared.Interfaces;
+namespace TSWMS.UserService.Shared.Interfaces;
 
 public interface IUserRepository
 {

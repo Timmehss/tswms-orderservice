@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSWMS.UserService.Business\TSWMS.UserService.Business.csproj" />
-    <ProjectReference Include="..\TSWMS.UserService.Data\TSWMS.UserService.Data.csproj" />
+    <ProjectReference Include="..\TSWMS.User.Service.Business\TSWMS.UserService.Business.csproj" />
+    <ProjectReference Include="..\TSWMS.User.Service.Data\TSWMS.UserService.Data.csproj" />
   </ItemGroup>
 
 </Project>

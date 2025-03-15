@@ -5,7 +5,7 @@ using TSWMS.UserService.Shared.Interfaces;
 
 #endregion
 
-namespace UserService.Api.Controllers
+namespace TSWMS.User.Service.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]

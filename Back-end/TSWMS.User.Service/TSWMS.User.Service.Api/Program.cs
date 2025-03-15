@@ -1,6 +1,7 @@
 #region Usings
 
-using UserService.Configurations;
+using TSWMS.UserService.Configurations;
+
 
 #endregion
 

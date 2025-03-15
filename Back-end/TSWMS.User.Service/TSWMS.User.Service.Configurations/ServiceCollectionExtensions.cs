@@ -4,14 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TSWMS.UserService.Business.Services;
+using TSWMS.UserService.Data;
+using TSWMS.UserService.Data.Repositories;
 using TSWMS.UserService.Shared.Interfaces;
-using UserService.Data;
-using UserService.Data.Repositories;
-using UserService.Shared.Interfaces;
 
 #endregion
 
-namespace UserService.Configurations
+namespace TSWMS.UserService.Configurations
 {
     public static class ServiceCollectionExtensions
     {

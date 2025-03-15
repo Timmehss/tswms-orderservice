@@ -1,4 +1,4 @@
-﻿using UserService.Shared.Models;
+﻿using TSWMS.UserService.Shared.Models;
 
 namespace TSWMS.UserService.Shared.Interfaces;
 

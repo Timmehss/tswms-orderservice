@@ -1,12 +1,14 @@
 ﻿#region Usings
 
 using Microsoft.EntityFrameworkCore;
-using UserService.Shared.Interfaces;
-using UserService.Shared.Models;
+using TSWMS.UserService.Shared.Interfaces;
+using TSWMS.UserService.Shared.Models;
+
+
 
 #endregion
 
-namespace UserService.Data.Repositories;
+namespace TSWMS.UserService.Data.Repositories;
 
 public class UserRepository : IUserRepository
 {
