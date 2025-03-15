@@ -9,6 +9,16 @@
           "Url": "https://localhost:3100/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "gateway",
+      "Config": [
+        {
+          "Name": "Gateway.Service.Api",
+          "Version": "dev",
+          "Url": "https://localhost:3000/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

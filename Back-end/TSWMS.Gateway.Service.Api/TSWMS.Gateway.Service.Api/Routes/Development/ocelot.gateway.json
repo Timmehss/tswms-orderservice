@@ -1,0 +1,30 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/configuration",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 3000
+        }
+      ],
+      "UpstreamPathTemplate": "/configuration",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "SwaggerKey": "gateway"
+    },
+    {
+      "DownstreamPathTemplate": "/outputcache/{region}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 3000
+        }
+      ],
+      "UpstreamPathTemplate": "/outputcache/{region}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "SwaggerKey": "gateway"
+    }
+  ]
+}
