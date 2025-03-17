@@ -2,9 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using TSWMS.UserService.Shared.Interfaces;
-using TSWMS.UserService.Shared.Models;
-
-
 
 #endregion
 
@@ -19,7 +16,7 @@ public class UserRepository : IUserRepository
         _userContext = userContext;
     }
 
-    public async Task<IEnumerable<User>> GetUsers()
+    public async Task<IEnumerable<Shared.Models.User>> GetUsers()
     {
         return await _userContext.Users.ToListAsync();
     }

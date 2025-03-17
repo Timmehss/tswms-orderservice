@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSWMS.Gateway.Service.Api", "TSWMS.Gateway.Service.Api\TSWMS.Gateway.Service.Api.csproj", "{4F77E205-DB5E-3C20-598C-F5D741732B24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSWMS.GatewayService.Api", "TSWMS.GatewayService.Api\TSWMS.GatewayService.Api.csproj", "{1E2C338A-9675-32B7-5DD4-3BBACD7FAD94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4F77E205-DB5E-3C20-598C-F5D741732B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4F77E205-DB5E-3C20-598C-F5D741732B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4F77E205-DB5E-3C20-598C-F5D741732B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4F77E205-DB5E-3C20-598C-F5D741732B24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E2C338A-9675-32B7-5DD4-3BBACD7FAD94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E2C338A-9675-32B7-5DD4-3BBACD7FAD94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E2C338A-9675-32B7-5DD4-3BBACD7FAD94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E2C338A-9675-32B7-5DD4-3BBACD7FAD94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

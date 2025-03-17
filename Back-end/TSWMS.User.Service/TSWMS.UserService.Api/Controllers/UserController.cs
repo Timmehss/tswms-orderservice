@@ -3,9 +3,10 @@
 using Microsoft.AspNetCore.Mvc;
 using TSWMS.UserService.Shared.Interfaces;
 
+
 #endregion
 
-namespace TSWMS.User.Service.Api.Controllers
+namespace TSWMS.UserService.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]

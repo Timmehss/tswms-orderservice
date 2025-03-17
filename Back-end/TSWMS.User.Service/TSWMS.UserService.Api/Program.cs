@@ -1,9 +1,11 @@
 #region Usings
 
-using TSWMS.UserService.Configurations;
+
 
 
 #endregion
+
+using TSWMS.UserService.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
