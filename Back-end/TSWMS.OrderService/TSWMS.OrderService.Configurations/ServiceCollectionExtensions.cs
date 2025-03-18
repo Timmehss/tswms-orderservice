@@ -20,7 +20,7 @@ namespace TSWMS.OrderService.Configurations
             var connectionString = configuration.GetConnectionString("OrderServiceDatabase");
 
             // Configure the DbContext with the retrieved connection string
-            services.AddDbContext<OrderDbContext>(options =>
+            services.AddDbContext<OrdersDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
             return services;

@@ -11,7 +11,7 @@ using TSWMS.OrderService.Data;
 
 namespace TSWMS.OrderService.Data.Migrations
 {
-    [DbContext(typeof(OrderDbContext))]
+    [DbContext(typeof(OrdersDbContext))]
     [Migration("20250318150253_InitOrderDb")]
     partial class InitOrderDb
     {

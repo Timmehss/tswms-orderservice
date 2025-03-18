@@ -21,7 +21,7 @@ namespace TSWMS.UserService.Configurations
             var connectionString = configuration.GetConnectionString("UserServiceDatabase");
 
             // Configure the DbContext with the retrieved connection string
-            services.AddDbContext<UserDbContext>(options =>
+            services.AddDbContext<UsersDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
             return services;

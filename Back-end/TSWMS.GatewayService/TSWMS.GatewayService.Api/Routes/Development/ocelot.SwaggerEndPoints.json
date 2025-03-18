@@ -29,6 +29,16 @@
           "Url": "https://localhost:3200/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "products",
+      "Config": [
+        {
+          "Name": "ProductService.Api",
+          "Version": "dev",
+          "Url": "https://localhost:3300/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

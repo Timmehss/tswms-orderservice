@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TSWMS.UserService.Data;
 
@@ -11,12 +10,10 @@ using TSWMS.UserService.Data;
 
 namespace TSWMS.UserService.Data.Migrations
 {
-    [DbContext(typeof(UserDbContext))]
-    [Migration("20250317093723_InitUserDb")]
-    partial class InitUserDb
+    [DbContext(typeof(UsersDbContext))]
+    partial class UsersDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,7 +24,7 @@ namespace TSWMS.UserService.Data.Migrations
 
             modelBuilder.Entity("TSWMS.UserService.Shared.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -39,26 +36,26 @@ namespace TSWMS.UserService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("52348777-7a0e-4139-9489-87dff9d47b7e"),
+                            UserId = new Guid("52348777-7a0e-4139-9489-87dff9d47b7e"),
                             Email = "user1@example.com",
                             Password = "password1"
                         },
                         new
                         {
-                            Id = new Guid("7ee4caea-21e9-4261-947d-8305df18ff45"),
+                            UserId = new Guid("7ee4caea-21e9-4261-947d-8305df18ff45"),
                             Email = "user2@example.com",
                             Password = "password2"
                         },
                         new
                         {
-                            Id = new Guid("27d0bb84-4420-441c-a503-264f1e365c05"),
+                            UserId = new Guid("27d0bb84-4420-441c-a503-264f1e365c05"),
                             Email = "user3@example.com",
                             Password = "password3"
                         });
