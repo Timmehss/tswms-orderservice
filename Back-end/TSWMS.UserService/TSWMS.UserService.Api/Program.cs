@@ -5,8 +5,8 @@
 
 #endregion
 
+using TSWMS.UserService.Api.MappingProfiles;
 using TSWMS.UserService.Configurations;
-using TSWMS.UserService.Shared.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 

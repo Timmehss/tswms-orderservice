@@ -14,12 +14,12 @@ namespace TSWMS.UserService.Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserManager _userService;
+        private readonly IUserManager _userManager;
         private readonly IMapper _mapper;
 
         public UserController(IUserManager userService, IMapper mapper)
         {
-            _userService = userService;
+            _userManager = userService;
             _mapper = mapper;
         }
 
@@ -28,7 +28,7 @@ namespace TSWMS.UserService.Api.Controllers
         {
             try
             {
-                var users = await _userService.GetUsersAsync();
+                var users = await _userManager.GetUsersAsync();
 
                 if (users == null || !users.Any())
                 {

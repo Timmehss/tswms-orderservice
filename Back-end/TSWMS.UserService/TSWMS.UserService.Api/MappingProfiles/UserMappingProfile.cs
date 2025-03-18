@@ -2,7 +2,7 @@
 using TSWMS.UserService.Api.Dto;
 using TSWMS.UserService.Shared.Models;
 
-namespace TSWMS.UserService.Shared.MappingProfiles;
+namespace TSWMS.UserService.Api.MappingProfiles;
 
 public class UserMappingProfile : Profile
 {

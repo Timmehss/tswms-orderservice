@@ -1,15 +1,55 @@
+#region Usings
+
+using TSWMS.OrderService.Api.MappingProfiles;
+using TSWMS.OrderService.Configurations;
+
+#endregion
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var developmentEnvironments = new string[] { "Development", "Production" };
 
+// Get Environment
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+// Configure App Configuration
+builder.Configuration
+    .AddJsonFile($"appsettings.{environment}.json");
+
+// Add Cors Policie
+builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>
+{
+    builder.SetIsOriginAllowed((host) => true)
+           .AllowAnyMethod()
+           .AllowAnyHeader()
+           .AllowCredentials();
+}));
+
+// Configure AutoMapper Profiles
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<OrderMappingProfile>();
+});
+
+// Configure EntityFramework UserDbContext
+builder.Services.ConfigureUserDbContext(builder.Configuration);
+
+// Configure dependency injection for managers
+builder.Services.ConfigureManagers();
+
+// Configure dependency injection for repositories
+builder.Services.ConfigureRepositories();
+
+// Additional service registrations
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors("TSWMSPolicy");
+
+// Configure request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +57,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

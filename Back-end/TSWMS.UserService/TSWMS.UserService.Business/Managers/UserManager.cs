@@ -1,7 +1,7 @@
 ﻿using TSWMS.UserService.Shared.Interfaces;
 using TSWMS.UserService.Shared.Models;
 
-namespace TSWMS.UserService.Business.Services;
+namespace TSWMS.UserService.Business.Managers;
 
 public class UserManager : IUserManager
 {
