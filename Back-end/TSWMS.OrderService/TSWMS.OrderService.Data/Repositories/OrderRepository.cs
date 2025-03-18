@@ -10,9 +10,9 @@ namespace TSWMS.OrderService.Data.Repositories;
 
 public class OrderRepository : IOrderRepository
 {
-    private readonly OrderDbContext _orderDbContext;
+    private readonly OrdersDbContext _orderDbContext;
 
-    public OrderRepository(OrderDbContext orderDbContext)
+    public OrderRepository(OrdersDbContext orderDbContext)
     {
         _orderDbContext = orderDbContext;
     }

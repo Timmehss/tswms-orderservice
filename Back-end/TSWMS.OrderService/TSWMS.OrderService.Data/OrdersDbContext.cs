@@ -7,9 +7,9 @@ using TSWMS.OrderService.Shared.Models;
 
 namespace TSWMS.OrderService.Data;
 
-public class OrderDbContext : DbContext
+public class OrdersDbContext : DbContext
 {
-    public OrderDbContext(DbContextOptions<OrderDbContext> options) : base(options) { }
+    public OrdersDbContext(DbContextOptions<OrdersDbContext> options) : base(options) { }
 
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }

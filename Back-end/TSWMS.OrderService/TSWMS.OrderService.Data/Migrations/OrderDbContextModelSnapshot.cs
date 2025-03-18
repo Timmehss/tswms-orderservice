@@ -10,7 +10,7 @@ using TSWMS.OrderService.Data;
 
 namespace TSWMS.OrderService.Data.Migrations
 {
-    [DbContext(typeof(OrderDbContext))]
+    [DbContext(typeof(OrdersDbContext))]
     partial class OrderDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

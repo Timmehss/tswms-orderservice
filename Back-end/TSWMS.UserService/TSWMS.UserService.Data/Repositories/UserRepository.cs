@@ -10,9 +10,9 @@ namespace TSWMS.UserService.Data.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly UserDbContext _userDbContext;
+    private readonly UsersDbContext _userDbContext;
 
-    public UserRepository(UserDbContext userContext)
+    public UserRepository(UsersDbContext userContext)
     {
         _userDbContext = userContext;
     }
