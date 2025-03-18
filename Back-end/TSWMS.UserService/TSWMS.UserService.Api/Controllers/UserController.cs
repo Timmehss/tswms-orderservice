@@ -1,6 +1,8 @@
 ﻿#region Usings
 
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using TSWMS.UserService.Api.Dto;
 using TSWMS.UserService.Shared.Interfaces;
 
 
@@ -13,10 +15,12 @@ namespace TSWMS.UserService.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserManager _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserManager userService)
+        public UserController(IUserManager userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -31,11 +35,10 @@ namespace TSWMS.UserService.Api.Controllers
                     return NotFound("No users found.");
                 }
 
-                return Ok(users);
+                return Ok(_mapper.Map<List<UserDto>>(users));
             }
             catch (Exception ex)
             {
-                // TODO: Implement logging later through logging service.
                 return StatusCode(500, "An error occurred while retrieving users.");
             }
         }

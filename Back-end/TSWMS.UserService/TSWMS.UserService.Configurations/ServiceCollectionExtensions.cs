@@ -42,3 +42,4 @@ namespace TSWMS.UserService.Configurations
         }
     }
 }
+

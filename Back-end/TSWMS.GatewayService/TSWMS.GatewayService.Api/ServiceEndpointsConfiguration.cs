@@ -1,4 +1,4 @@
-﻿namespace TSWMS.Gateway.Service.Api;
+﻿namespace TSWMS.GatewayService.Api;
 
 public class ServiceEndpointsConfiguration
 {

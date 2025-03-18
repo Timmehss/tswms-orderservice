@@ -6,6 +6,7 @@
 #endregion
 
 using TSWMS.UserService.Configurations;
+using TSWMS.UserService.Shared.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,12 @@ builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>
            .AllowAnyHeader()
            .AllowCredentials();
 }));
+
+// Configure AutoMapper Profiles
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<UserMappingProfile>();
+});
 
 // Configure EntityFramework UserDbContext
 builder.Services.ConfigureUserDbContext(builder.Configuration);
