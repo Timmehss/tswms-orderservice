@@ -12,7 +12,7 @@ using TSWMS.ProductService.Data;
 namespace TSWMS.ProductService.Data.Migrations
 {
     [DbContext(typeof(ProductsDbContext))]
-    [Migration("20250320113829_InitProductDb")]
+    [Migration("20250321123241_InitProductDb")]
     partial class InitProductDb
     {
         /// <inheritdoc />
