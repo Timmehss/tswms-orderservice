@@ -31,5 +31,4 @@ EXPOSE 8081
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV ASPNETCORE_ENVIRONMENT=Development
 ENTRYPOINT ["dotnet", "TSWMS.OrderService.Api.dll"]
