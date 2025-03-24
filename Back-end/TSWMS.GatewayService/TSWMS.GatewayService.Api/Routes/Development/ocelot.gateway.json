@@ -2,7 +2,7 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/configuration",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -15,7 +15,7 @@
     },
     {
       "DownstreamPathTemplate": "/outputcache/{region}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",

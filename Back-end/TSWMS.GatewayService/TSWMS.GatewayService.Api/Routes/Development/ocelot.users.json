@@ -9,7 +9,7 @@
         "DELETE"
       ],
       "DownstreamPathTemplate": "/api/users/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "SwaggerKey": "users",
       "DownstreamHostAndPorts": [
         {

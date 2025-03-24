@@ -1,13 +1,13 @@
 #region Usings
 
+using Microsoft.EntityFrameworkCore;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Configurations;
+using TSWMS.OrderService.Data;
 
 #endregion
 
 var builder = WebApplication.CreateBuilder(args);
-
-var developmentEnvironments = new string[] { "Development", "Production" };
 
 // Get Environment
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -46,6 +46,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Apply pending migrations to the database
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseCors("TSWMSPolicy");
 
