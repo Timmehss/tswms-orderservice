@@ -42,7 +42,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: Back-end/TSWMS.OrderService
+          file: Back-end/TSWMS.OrderService/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
-          file: Dockerfile
