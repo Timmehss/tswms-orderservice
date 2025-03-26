@@ -14,17 +14,25 @@ namespace TSWMS.OrderService.Configurations
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureUserDbContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureUserDbContext(this IServiceCollection services, IConfiguration configuration, string environment)
         {
-            // Get the connection string from the configuration
-            var connectionString = configuration.GetConnectionString("OrderServiceDatabase");
-
-            // Configure the DbContext with the retrieved connection string
-            services.AddDbContext<OrdersDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            if (environment == "Test")
+            {
+                // Use In-Memory database for testing
+                services.AddDbContext<OrdersDbContext>(options =>
+                    options.UseInMemoryDatabase("TestOrderDb"));
+            }
+            else
+            {
+                // Use SQL Server for production or development
+                var connectionString = configuration.GetConnectionString("OrderServiceDatabase");
+                services.AddDbContext<OrdersDbContext>(options =>
+                    options.UseSqlServer(connectionString));
+            }
 
             return services;
         }
+
 
         public static IServiceCollection ConfigureRepositories(this IServiceCollection services)
         {

@@ -38,7 +38,7 @@ public class OrderController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "An error occurred while retrieving orders.");
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
 }

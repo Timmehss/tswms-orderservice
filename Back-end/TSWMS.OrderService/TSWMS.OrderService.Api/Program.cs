@@ -7,63 +7,76 @@ using TSWMS.OrderService.Data;
 
 #endregion
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Get Environment
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-// Configure App Configuration
-builder.Configuration
-    .AddJsonFile($"appsettings.{environment}.json");
-
-// Add Cors Policie
-builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>
+public class Program
 {
-    builder.SetIsOriginAllowed((host) => true)
-           .AllowAnyMethod()
-           .AllowAnyHeader()
-           .AllowCredentials();
-}));
+    public static void Main(string[] args)
+    {
 
-// Configure AutoMapper Profiles
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<OrderMappingProfile>();
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-// Configure EntityFramework UserDbContext
-builder.Services.ConfigureUserDbContext(builder.Configuration);
+        // Get Environment
+        var environment = builder.Environment.EnvironmentName;
 
-// Configure dependency injection for managers
-builder.Services.ConfigureManagers();
+        // Configure App Configuration
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
-// Configure dependency injection for repositories
-builder.Services.ConfigureRepositories();
+        // Add Cors Policie
+        builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>
+        {
+            builder.SetIsOriginAllowed((host) => true)
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        }));
 
-// Additional service registrations
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        // Configure AutoMapper Profiles
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<OrderMappingProfile>();
+        });
 
-var app = builder.Build();
+        // Configure EntityFramework UserDbContext
+        builder.Services.ConfigureUserDbContext(builder.Configuration, environment);
 
-// Apply pending migrations to the database
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-    dbContext.Database.Migrate();
+        // Configure dependency injection for managers
+        builder.Services.ConfigureManagers();
+
+        // Configure dependency injection for repositories
+        builder.Services.ConfigureRepositories();
+
+        // Additional service registrations
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        var app = builder.Build();
+
+        // Apply pending migrations to the database
+        if (environment != "Test")
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+                dbContext.Database.Migrate();
+            }
+        }
+
+        app.UseCors("TSWMSPolicy");
+
+        // Configure request pipeline
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseAuthorization();
+        app.MapControllers();
+        app.Run();
+
+    }
 }
-
-app.UseCors("TSWMSPolicy");
-
-// Configure request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-app.Run();
