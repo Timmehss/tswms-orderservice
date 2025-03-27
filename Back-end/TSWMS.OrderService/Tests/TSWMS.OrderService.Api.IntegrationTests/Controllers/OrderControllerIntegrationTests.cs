@@ -1,9 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Newtonsoft.Json;
+using TSWMS.OrderService.Api.Dto;
 
-public class OrderControllerTests
+namespace TSWMS.OrderService.Api.IntegrationTests;
+
+public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    public OrderControllerTests(WebApplicationFactory<Program> factory)
-    {
+    private readonly HttpClient _client;
 
+    public OrderControllerIntegrationTests(CustomWebApplicationFactory<Program> factory)
+    {
+        _client = factory.CreateClient();
+    }
+
+    [Fact]
+    public async Task GetOrders_ReturnsOkWithOrders()
+    {
+        // Arrange & Act
+        var response = await _client.GetAsync("/api/orders");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var stringResponse = await response.Content.ReadAsStringAsync();
+        var orders = JsonConvert.DeserializeObject<List<OrderDto>>(stringResponse);
+
+        Assert.NotNull(orders);
+        Assert.NotEmpty(orders);
     }
 }
