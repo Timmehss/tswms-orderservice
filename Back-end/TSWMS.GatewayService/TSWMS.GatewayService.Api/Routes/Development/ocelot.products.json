@@ -9,7 +9,7 @@
         "DELETE"
       ],
       "DownstreamPathTemplate": "/api/products/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "SwaggerKey": "products",
       "DownstreamHostAndPorts": [
         {
