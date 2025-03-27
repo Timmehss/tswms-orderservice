@@ -66,15 +66,19 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
+      - name: Add SonarCloud scanner to PATH
+        shell: powershell
+        run: |
+          $Env:PATH += ";$(pwd)\.sonar\scanner"
+
       - name: Build and analyze with SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          cd Back-end/TSWMS.OrderService
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build TSWMS.OrderService.sln
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build Back-end/TSWMS.OrderService/TSWMS.OrderService.sln
+          .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   docker:
     runs-on: ubuntu-latest
