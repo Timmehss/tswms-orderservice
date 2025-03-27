@@ -54,20 +54,25 @@ public class Program
 
         var app = builder.Build();
 
-        // Apply pending migrations to the database
         if (environment != "Test")
         {
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-                dbContext.Database.Migrate();
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<OrdersDbContext>();
+
+                // Check if database exists, and apply migrations if it does
+                if (DatabaseExists(dbContext))
+                {
+                    // Apply pending migrations to the existing database
+                    dbContext.Database.Migrate();
+                }
             }
         }
 
         app.UseCors("TSWMSPolicy");
 
-        // Configure request pipeline
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || environment == "Docker")
         {
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -77,6 +82,17 @@ public class Program
         app.UseAuthorization();
         app.MapControllers();
         app.Run();
+    }
 
+    private static bool DatabaseExists(OrdersDbContext context)
+    {
+        try
+        {
+            return context.Database.CanConnect();
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
