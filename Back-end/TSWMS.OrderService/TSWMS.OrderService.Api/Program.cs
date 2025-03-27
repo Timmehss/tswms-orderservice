@@ -54,20 +54,13 @@ public class Program
 
         var app = builder.Build();
 
-        if (environment != "Test")
+        using (var scope = app.Services.CreateScope())
         {
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var dbContext = services.GetRequiredService<OrdersDbContext>();
+            var services = scope.ServiceProvider;
+            var dbContext = services.GetRequiredService<OrdersDbContext>();
 
-                // Check if database exists, and apply migrations if it does
-                if (DatabaseExists(dbContext))
-                {
-                    // Apply pending migrations to the existing database
-                    dbContext.Database.Migrate();
-                }
-            }
+            // Apply pending migrations or create database if it doesn't exist
+            dbContext.Database.Migrate();
         }
 
         app.UseCors("TSWMSPolicy");
@@ -82,17 +75,5 @@ public class Program
         app.UseAuthorization();
         app.MapControllers();
         app.Run();
-    }
-
-    private static bool DatabaseExists(OrdersDbContext context)
-    {
-        try
-        {
-            return context.Database.CanConnect();
-        }
-        catch
-        {
-            return false;
-        }
     }
 }
