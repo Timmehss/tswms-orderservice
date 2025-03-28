@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
 
 jobs:
   Build:
@@ -28,7 +31,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
-    needs: Build  # Ensure the "Build" job runs first
+    needs: Build
 
     steps:
       - name: Checkout repository
@@ -48,17 +51,23 @@ jobs:
           dotnet test --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory coverage \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
-        working-directory: Back-end/TSWMS.OrderService
+            --results-directory ./coverage
+        working-directory: Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests
 
-      - name: Debug: Check if coverage files exist
-        run: ls -R Back-end/TSWMS.OrderService/coverage || echo "No coverage files found"
-      
+      - name: List contents of the coverage directory
+        run: |
+          echo "Listing contents of the coverage directory:"
+          ls -R ./Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests/coverage
+          echo "Listing contents of Back-end/TSWMS.OrderService directory:"
+          ls -R Back-end/TSWMS.OrderService
+
+      - name: Find coverage files
+        run: find . -name "*.cobertura.xml" || echo "No coverage files found"
+
       - name: Convert coverage to SonarCloud format
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:Back-end/TSWMS.OrderService/coverage/**/*.xml \
+          reportgenerator -reports:Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests/coverage/**/*.xml \
                           -targetdir:Back-end/TSWMS.OrderService/coverage/reports \
                           -reporttypes:Cobertura
 
@@ -71,7 +80,7 @@ jobs:
   SonarCloud:
     name: SonarCloud Analysis
     runs-on: windows-latest
-    needs: [Test]  # Ensure tests run before this step
+    needs: [Test]
 
     steps:
       - name: Set up JDK 17
@@ -106,12 +115,12 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-
+          
       - name: Add SonarCloud scanner to PATH
         shell: powershell
         run: |
           $Env:PATH += ";$(pwd)\.sonar\scanner"
-
+          
       - name: Download test coverage report
         uses: actions/download-artifact@v4
         with:
@@ -123,7 +132,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="Back-end/TSWMS.OrderService/coverage/reports/Cobertura.xml"
+          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests/coverage/**/*.xml"
           dotnet build Back-end/TSWMS.OrderService/TSWMS.OrderService.sln
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
