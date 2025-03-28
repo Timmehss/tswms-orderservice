@@ -64,6 +64,10 @@ jobs:
       - name: Find coverage files
         run: find . -name "*.cobertura.xml" || echo "No coverage files found"
 
+      - name: Ensure reports directory exists
+        run: |
+          mkdir -p Back-end/TSWMS.OrderService/coverage/reports
+
       - name: Convert coverage to SonarCloud format
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
