@@ -28,7 +28,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
-    needs: Build  # Ensure the "Build" job runs first
+    needs: Build
 
     steps:
       - name: Checkout repository
@@ -48,18 +48,17 @@ jobs:
           dotnet test --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory coverage \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
-        working-directory: Back-end/TSWMS.OrderService
+            --results-directory ../../coverage
+        working-directory: Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests
 
-      - name: Debug: Check if coverage files exist
-        run: ls -R Back-end/TSWMS.OrderService/coverage || echo "No coverage files found"
-      
+      - name: Check if coverage files exist
+        run: find Back-end/TSWMS.OrderService -name "*.cobertura.xml" || echo "No coverage files found"
+
       - name: Convert coverage to SonarCloud format
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:Back-end/TSWMS.OrderService/coverage/**/*.xml \
-                          -targetdir:Back-end/TSWMS.OrderService/coverage/reports \
+          reportgenerator -reports:coverage/**/*.xml \
+                          -targetdir:coverage/reports \
                           -reporttypes:Cobertura
 
       - name: Upload test coverage artifact
@@ -71,7 +70,7 @@ jobs:
   SonarCloud:
     name: SonarCloud Analysis
     runs-on: windows-latest
-    needs: [Test]  # Ensure tests run before this step
+    needs: [Test]
 
     steps:
       - name: Set up JDK 17
@@ -106,12 +105,12 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-
+          
       - name: Add SonarCloud scanner to PATH
         shell: powershell
         run: |
           $Env:PATH += ";$(pwd)\.sonar\scanner"
-
+          
       - name: Download test coverage report
         uses: actions/download-artifact@v4
         with:
