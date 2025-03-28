@@ -51,8 +51,15 @@ jobs:
             --results-directory ./coverage
         working-directory: Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests
 
-      - name: Check if coverage files exist
-        run: find Back-end/TSWMS.OrderService/coverage -name "*.cobertura.xml" || echo "No coverage files found"
+      - name: List contents of the coverage directory
+        run: |
+          echo "Listing contents of the coverage directory:"
+          ls -R ./coverage
+          echo "Listing contents of Back-end/TSWMS.OrderService directory:"
+          ls -R Back-end/TSWMS.OrderService
+
+      - name: Find coverage files
+        run: find . -name "*.cobertura.xml" || echo "No coverage files found"
 
       - name: Convert coverage to SonarCloud format
         run: |
