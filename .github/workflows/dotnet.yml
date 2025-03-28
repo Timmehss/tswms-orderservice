@@ -64,7 +64,7 @@ jobs:
       - name: Find coverage files
         run: find . -name "*.cobertura.xml" || echo "No coverage files found"
 
-      - name: Ensure reports directory exists
+      - name: Create reports directory
         run: |
           mkdir -p Back-end/TSWMS.OrderService/coverage/reports
 
