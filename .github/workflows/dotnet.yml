@@ -48,17 +48,17 @@ jobs:
           dotnet test --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory ../../coverage
+            --results-directory ./coverage
         working-directory: Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests
 
       - name: Check if coverage files exist
-        run: find Back-end/TSWMS.OrderService -name "*.cobertura.xml" || echo "No coverage files found"
+        run: find Back-end/TSWMS.OrderService/coverage -name "*.cobertura.xml" || echo "No coverage files found"
 
       - name: Convert coverage to SonarCloud format
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:coverage/**/*.xml \
-                          -targetdir:coverage/reports \
+          reportgenerator -reports:Back-end/TSWMS.OrderService/coverage/**/*.xml \
+                          -targetdir:Back-end/TSWMS.OrderService/coverage/reports \
                           -reporttypes:Cobertura
 
       - name: Upload test coverage artifact
