@@ -23,11 +23,11 @@ jobs:
 
       - name: Restore NuGet packages
         run: dotnet restore
-        working-directory: TSWMS.OrderService.Api
+        working-directory: TSWMS.OrderService
 
       - name: Build the project
         run: dotnet build --configuration Release --no-restore
-        working-directory: TSWMS.OrderService.Api
+        working-directory: TSWMS.OrderService
 
   test:
     runs-on: ubuntu-latest
@@ -36,18 +36,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+      
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
       - name: Run Unit Tests
-        run: dotnet test --no-restore --collect:"XPlat Code Coverage" --settings TSWMS.OrderService/coverlet.runsettings
+        run: dotnet test --no-restore --collect:"XPlat Code Coverage"
         working-directory: Tests/TSWMS.OrderService.UnitTests
 
       - name: Run Integration Tests
-        run: dotnet test --no-restore --collect:"XPlat Code Coverage" --settings TSWMS.OrderService/coverlet.runsettings
+        run: dotnet test --no-restore --collect:"XPlat Code Coverage"
         working-directory: Tests/TSWMS.OrderService.Api.IntegrationTests
 
       - name: Publish Code Coverage
