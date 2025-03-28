@@ -54,13 +54,16 @@ public class Program
 
         var app = builder.Build();
 
-        using (var scope = app.Services.CreateScope())
+        if (environment != "Test")
         {
-            var services = scope.ServiceProvider;
-            var dbContext = services.GetRequiredService<OrdersDbContext>();
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<OrdersDbContext>();
 
-            // Apply pending migrations or create database if it doesn't exist
-            dbContext.Database.Migrate();
+                // Apply pending migrations or create database if it doesn't exist
+                dbContext.Database.Migrate();
+            }
         }
 
         app.UseCors("TSWMSPolicy");
