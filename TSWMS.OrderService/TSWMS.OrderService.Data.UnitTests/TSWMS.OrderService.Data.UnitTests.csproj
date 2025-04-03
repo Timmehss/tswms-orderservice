@@ -19,12 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\TSWMS.OrderService.Data\TSWMS.OrderService.Data.csproj" />
+    <ProjectReference Include="..\TSWMS.OrderService.Shared\TSWMS.OrderService.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TSWMS.OrderService.Data\TSWMS.OrderService.Data.csproj" />
-    <ProjectReference Include="..\..\TSWMS.OrderService.Shared\TSWMS.OrderService.Shared.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>

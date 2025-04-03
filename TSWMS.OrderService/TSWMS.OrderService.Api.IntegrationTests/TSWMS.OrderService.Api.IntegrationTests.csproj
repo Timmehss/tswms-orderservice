@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TSWMS.OrderService.Api\TSWMS.OrderService.Api.csproj" />
+    <ProjectReference Include="..\TSWMS.OrderService.Api\TSWMS.OrderService.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
