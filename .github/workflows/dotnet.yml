@@ -43,17 +43,15 @@ jobs:
         run: dotnet restore
         working-directory: TSWMS.OrderService
 
-      - name: Run Integration Tests
+      - name: Run All Tests with Coverage
         run: |
-          dotnet test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --configuration Release
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --configuration Release --collect:"XPlat Code Coverage"
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage"
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage"
 
-      - name: Run Business Unit Tests
+      - name: Convert Coverage to .opencover
         run: |
-          dotnet test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --configuration Release
-
-      - name: Run Data Unit Tests
-        run: |
-          dotnet test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release
+          reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:Cobertura
 
   sonarcloud:
     name: sonarcloud analysis
@@ -93,16 +91,18 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          
       - name: Add SonarCloud scanner to PATH
         shell: powershell
         run: |
           $Env:PATH += ";$(pwd)\.sonar\scanner"
+          
       - name: Build and analyze with SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage-report/coverage.opencover.xml"
           dotnet build TSWMS.OrderService/TSWMS.OrderService.sln
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
