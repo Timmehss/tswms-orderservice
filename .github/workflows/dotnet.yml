@@ -9,24 +9,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: 8.0.x
 
-      - name: Restore NuGet packages
+      - name: Restore dependencies
         run: dotnet restore
-        working-directory: TSWMS.OrderService
 
-      - name: Build the entire solution
-        run: dotnet build --configuration Release --no-restore
-        working-directory: TSWMS.OrderService
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
 
+      - name: Publish build output
+        run: dotnet publish -c Release -o ./output
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: ./output
 
   sonarcloud:
     name: sonarcloud analysis & coverage
