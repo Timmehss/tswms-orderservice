@@ -56,7 +56,7 @@ jobs:
           dotnet test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release
 
   sonarcloud:
-    name: SonarCloud Analysis
+    name: sonarcloud analysis
     runs-on: windows-latest
     needs: [test]
 

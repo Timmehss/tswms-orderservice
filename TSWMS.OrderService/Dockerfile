@@ -15,6 +15,11 @@ COPY ["TSWMS.OrderService.Configurations/TSWMS.OrderService.Configurations.cspro
 COPY ["TSWMS.OrderService.Data/TSWMS.OrderService.Data.csproj", "TSWMS.OrderService.Data/"]
 COPY ["TSWMS.OrderService.Shared/TSWMS.OrderService.Shared.csproj", "TSWMS.OrderService.Shared/"]
 
+# Copy the test projects
+COPY ["Tests/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj", "Tests/TSWMS.OrderService.Business.UnitTests/"]
+COPY ["Tests/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj", "Tests/TSWMS.OrderService.Data.UnitTests/"]
+COPY ["Tests/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj", "Tests/TSWMS.OrderService.Api.IntegrationTests/"]
+
 # Restore all the dependencies
 RUN dotnet restore "TSWMS.OrderService.sln"
 
