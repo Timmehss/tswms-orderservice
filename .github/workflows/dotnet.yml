@@ -27,104 +27,63 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         working-directory: TSWMS.OrderService
 
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "8.0.x"
-
-      - name: Install Coverlet Console
-        run: dotnet tool install --global coverlet.console
-
-      - name: Restore dependencies for all test projects
-        run: dotnet restore
-        working-directory: TSWMS.OrderService
-
-      - name: Run Code Coverage with Coverlet for Integration Tests
-        run: |
-          coverlet TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/bin/Release/net8.0/TSWMS.OrderService.Api.IntegrationTests.dll \
-          --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --no-build --configuration Release" \
-          --format opencover \
-          --output coverage.integration.xml
-
-      - name: Run Code Coverage with Coverlet for Business Unit Tests
-        run: |
-          coverlet TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/bin/Release/net8.0/TSWMS.OrderService.Business.UnitTests.dll \
-          --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --no-build --configuration Release" \
-          --format opencover \
-          --output coverage.business.xml
-
-      - name: Run Code Coverage with Coverlet for Data Unit Tests
-        run: |
-          coverlet TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/bin/Release/net8.0/TSWMS.OrderService.Data.UnitTests.dll \
-          --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --no-build --configuration Release" \
-          --format opencover \
-          --output coverage.data.xml
-
   sonarcloud:
-    name: sonarcloud analysis
+    name: sonarcloud analysis & coverage
+    needs: build
     runs-on: windows-latest
-    needs: [test]
-
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: "zulu"
+          distribution: 'zulu'
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          dotnet-version: 8.0.x
 
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
+      - name: Install SonarScanner
+        run: dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-      - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
-        run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-
-      - name: Add SonarCloud scanner to PATH
-        shell: powershell
-        run: |
-          $Env:PATH += ";$(pwd)\.sonar\scanner"
-
-      - name: Build and analyze with SonarCloud
+      - name: Begin SonarCloud analysis
+        run: .\.sonar\scanner\dotnet-sonarscanner begin `
+          /k:"Timmehss_TSWMS" `
+          /o:"tswms" `
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.host.url="https://sonarcloud.io" `
+          /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" `
+          /d:sonar.exclusions="**/build-wrapper-dump.json" `
+          /d:sonar.coverage.exclusions="TSWMS.OrderService.Configurations/*.cs,TSWMS.OrderService.Data/Migrations/*.cs,TSWMS.OrderService.Data/*.cs,TSWMS.OrderService.Api/Program.cs"
+          /d:sonar.test.inclusions="**/TSWMS.OrderService.Business.UnitTests/**/*.cs" `
+          /d:sonar.cs.testProjectPattern=".*\.UnitTests"
+        shell: pwsh
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.cs.opencover.reportsPaths="coverage.integration.xml,coverage.business.xml,coverage.data.xml" \
-          /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build TSWMS.OrderService/TSWMS.OrderService.sln
-          .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-incremental
+
+      - name: Run Unit Tests with Coverage
+        run: dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj `
+          --collect:"XPlat Code Coverage" `
+          --results-directory:"TestResults" `
+          --settings coverlet.runsettings
+
+      - name: Show coverage XML (optional)
+        run: Get-Content -Path (Get-ChildItem -Path TestResults -Recurse -Filter 'coverage.opencover.xml').FullName
+        shell: pwsh
+
+      - name: End SonarCloud analysis
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        shell: pwsh
 
   docker:
     runs-on: ubuntu-latest
