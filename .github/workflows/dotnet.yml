@@ -21,11 +21,11 @@ jobs:
 
       - name: Restore NuGet packages
         run: dotnet restore
-        working-directory: Back-end/TSWMS.OrderService/TSWMS.OrderService.Api
+        working-directory: TSWMS.OrderService/TSWMS.OrderService.Api
 
       - name: Build the project
         run: dotnet build --configuration Release --no-restore
-        working-directory: Back-end/TSWMS.OrderService/TSWMS.OrderService.Api
+        working-directory: TSWMS.OrderService/TSWMS.OrderService.Api
 
   test:
     runs-on: ubuntu-latest
@@ -41,19 +41,19 @@ jobs:
 
       - name: Restore dependencies for all test projects
         run: dotnet restore
-        working-directory: Back-end/TSWMS.OrderService
+        working-directory: TSWMS.OrderService
 
       - name: Run Integration Tests
         run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --configuration Release
-          
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --configuration Release
+
       - name: Run Business Unit Tests
         run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --configuration Release
-          
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --configuration Release
+
       - name: Run Data Unit Tests
         run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release
+          dotnet test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -103,7 +103,7 @@ jobs:
         shell: powershell
         run: |
           .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build Back-end/TSWMS.OrderService/TSWMS.OrderService.sln
+          dotnet build TSWMS.OrderService/TSWMS.OrderService.sln
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   docker:
@@ -129,7 +129,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: Back-end/TSWMS.OrderService
-          file: Back-end/TSWMS.OrderService/Dockerfile
+          context: TSWMS.OrderService
+          file: TSWMS.OrderService/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
