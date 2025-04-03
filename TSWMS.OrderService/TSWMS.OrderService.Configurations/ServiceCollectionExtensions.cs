@@ -20,7 +20,7 @@ namespace TSWMS.OrderService.Configurations
             {
                 // Use an in-memory database for testing
                 services.AddDbContext<OrdersDbContext>(options =>
-                    options.UseInMemoryDatabase("InMemoryDbForTesting"));
+                    options.UseInMemoryDatabase("InMemoryOrderServiceDbForTesting"));
             }
             else
             {
