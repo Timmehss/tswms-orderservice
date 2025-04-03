@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using TSWMS.OrderService.Api.Dto;
 
-namespace TSWMS.OrderService.Api.IntegrationTests;
+namespace TSWMS.OrderService.Api.IntegrationTests.Controllers;
 
 public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
