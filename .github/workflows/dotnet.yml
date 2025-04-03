@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore
         working-directory: TSWMS.OrderService
 
-      - name: Build the project
+      - name: Build the entire solution
         run: dotnet build --configuration Release --no-restore
         working-directory: TSWMS.OrderService
 
@@ -48,28 +48,25 @@ jobs:
 
       - name: Run Code Coverage with Coverlet for Integration Tests
         run: |
-          dotnet build --configuration Release TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests
           coverlet TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/bin/Release/net8.0/TSWMS.OrderService.Api.IntegrationTests.dll \
           --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --no-build" \
+          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --no-build --configuration Release" \
           --format opencover \
           --output coverage.integration.xml
 
       - name: Run Code Coverage with Coverlet for Business Unit Tests
         run: |
-          dotnet build --configuration Release TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests
           coverlet TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/bin/Release/net8.0/TSWMS.OrderService.Business.UnitTests.dll \
           --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --no-build" \
+          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --no-build --configuration Release" \
           --format opencover \
           --output coverage.business.xml
 
       - name: Run Code Coverage with Coverlet for Data Unit Tests
         run: |
-          dotnet build --configuration Release TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests
           coverlet TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/bin/Release/net8.0/TSWMS.OrderService.Data.UnitTests.dll \
           --target "dotnet" \
-          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --no-build" \
+          --targetargs "test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --no-build --configuration Release" \
           --format opencover \
           --output coverage.data.xml
 
