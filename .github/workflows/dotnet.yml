@@ -50,13 +50,11 @@ jobs:
           dotnet test TSWMS.OrderService/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage"
 
       - name: Install ReportGenerator
-        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+        run: dotnet tool install dotnet-reportgenerator-globaltool --tool-path tools
 
       - name: Convert Coverage to .opencover
         run: |
-          reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:"Cobertura"
-        env:
-          PATH: ${{ github.runner.workspace }}/.dotnet/tools:${{ env.PATH }}
+          tools/reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:"Cobertura"
 
   sonarcloud:
     name: sonarcloud analysis
