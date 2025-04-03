@@ -8,23 +8,20 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy the solution file and all the project files
-COPY ["TSWMS.OrderService.sln", "."]
-COPY ["TSWMS.OrderService.Api/TSWMS.OrderService.Api.csproj", "TSWMS.OrderService.Api/"]
-COPY ["TSWMS.OrderService.Business/TSWMS.OrderService.Business.csproj", "TSWMS.OrderService.Business/"]
-COPY ["TSWMS.OrderService.Configurations/TSWMS.OrderService.Configurations.csproj", "TSWMS.OrderService.Configurations/"]
-COPY ["TSWMS.OrderService.Data/TSWMS.OrderService.Data.csproj", "TSWMS.OrderService.Data/"]
-COPY ["TSWMS.OrderService.Shared/TSWMS.OrderService.Shared.csproj", "TSWMS.OrderService.Shared/"]
+COPY TSWMS.OrderService.sln . 
+COPY TSWMS.OrderService.Api/ TSWMS.OrderService.Api/
+COPY TSWMS.OrderService.Business/ TSWMS.OrderService.Business/
+COPY TSWMS.OrderService.Configurations/ TSWMS.OrderService.Configurations/
+COPY TSWMS.OrderService.Data/ TSWMS.OrderService.Data/
+COPY TSWMS.OrderService.Shared/ TSWMS.OrderService.Shared/
 
 # Copy the test projects
-COPY ["TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj", "TSWMS.OrderService.Business.UnitTests/"]
-COPY ["TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj", "TSWMS.OrderService.Data.UnitTests/"]
-COPY ["TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj", "TSWMS.OrderService.Api.IntegrationTests/"]
+COPY TSWMS.OrderService.Business.UnitTests/ TSWMS.OrderService.Business.UnitTests/
+COPY TSWMS.OrderService.Data.UnitTests/ TSWMS.OrderService.Data.UnitTests/
+COPY TSWMS.OrderService.Api.IntegrationTests/ TSWMS.OrderService.Api.IntegrationTests/
 
-# Restore all the dependencies
+# Restore dependencies
 RUN dotnet restore "TSWMS.OrderService.sln"
-
-# Copy the rest of the code
-COPY . . 
 
 # Build the application
 WORKDIR "/src/TSWMS.OrderService.Api"
