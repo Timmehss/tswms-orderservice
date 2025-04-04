@@ -47,15 +47,15 @@ jobs:
 
       - name: Build and Analyze with Coverlet Coverage
         run: |
-            .\.sonar\scanner\dotnet-sonarscanner begin ` 
-              /k:"Timmehss_TSWMS" ` 
-              /o:"tswms" ` 
-              /d:sonar.token="${{ secrets.SONAR_TOKEN }}" ` 
-              /d:sonar.host.url="https://sonarcloud.io" ` 
-              /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" ` 
-              /d:sonar.exclusions="**/build-wrapper-dump.json" ` 
-              /d:sonar.coverage.exclusions="TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs" ` 
-              /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs" ` 
+            .\.sonar\scanner\dotnet-sonarscanner begin `
+              /k:"Timmehss_TSWMS" `
+              /o:"tswms" `
+              /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+              /d:sonar.host.url="https://sonarcloud.io" `
+              /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" `
+              /d:sonar.exclusions="**/build-wrapper-dump.json" `
+              /d:sonar.coverage.exclusions="TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs" `
+              /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs" `
               /d:sonar.cs.testProjectPattern=".*\.IntegrationTests"
         shell: pwsh
         env:
