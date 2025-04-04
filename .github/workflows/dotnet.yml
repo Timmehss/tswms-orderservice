@@ -54,8 +54,8 @@ jobs:
               /d:sonar.host.url="https://sonarcloud.io" `
               /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" `
               /d:sonar.exclusions="**/build-wrapper-dump.json" `
-              /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" ` 
-              /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" ` 
+              /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" `
+              /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" `
               /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
 
         shell: pwsh
@@ -119,7 +119,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: . 
-          file: Dockerfile 
-          push: true 
+          context: .
+          file: Dockerfile
+          push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
