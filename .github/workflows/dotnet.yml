@@ -61,27 +61,18 @@ jobs:
       - name: Begin SonarCloud Analysis
         shell: pwsh
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin `
-            /k:"Timmehss_TSWMS" `
-            /o:"tswms" `
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" `
-            /d:sonar.exclusions="**/build-wrapper-dump.json" `
-            /d:sonar.coverage.exclusions="`
-              TSWS.OrderService.Api/Program.cs,`
-              TSWS.OrderService.Data/Migrations/**/*.cs,`
-              TSWS.OrderService.Data/OrdersDbContext.cs,`
-              TSWS.OrderService.Configurations/ServiceCollectionExtensions.cs,`
-              TSWS.OrderService.Shared/**" `
-            /d:sonar.test.inclusions="`
-              **/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,`
-              **/TSWMS.OrderService.Business.UnitTests/**/*.cs,`
-              **/TSWMS.OrderService.Data.UnitTests/**/*.cs" `
-            /d:sonar.cs.testProjectPattern="`
-              .*\.IntegrationTests|.*\.UnitTests"
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            .\.sonar\scanner\dotnet-sonarscanner begin `
+                /k:"Timmehss_TSWMS" `
+                /o:"tswms" `
+                /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+                /d:sonar.host.url="https://sonarcloud.io" `
+                /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" `
+                /d:sonar.exclusions="**/build-wrapper-dump.json" `
+                /d:sonar.coverage.exclusions="TSWS.OrderService.Api/Program.cs,TSWS.OrderService.Data/Migrations/**/*.cs,TSWS.OrderService.Data/OrdersDbContext.cs,TSWS.OrderService.Configurations/ServiceCollectionExtensions.cs,TSWS.OrderService.Shared/**" `
+                /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" `
+                /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
+            env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Restore dependencies
         shell: pwsh
