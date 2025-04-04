@@ -1,4 +1,4 @@
-name: OrderService - Build, Test, and Deploy
+name: OrderService - Build, Test, Code Analysis and Deploy
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
       - develop
 
 jobs:
-  sonarcloud:
-    name: Build, Test, and Analyze with Coverage
+  build-test-analyze:
+    name: Build, Test, and Analyze
     runs-on: windows-latest
 
     steps:
@@ -23,14 +23,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache SonarQube Cloud packages
+      - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~\sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache SonarQube Cloud scanner
+      - name: Cache SonarCloud scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
         with:
@@ -38,15 +38,16 @@ jobs:
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
 
-      - name: Install SonarQube Cloud scanner
+      - name: Install SonarCloud scanner if not cached
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Build and Analyze with Coverlet Coverage
+
+      - name: Begin SonarCloud Analysis
         run: |
-            .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/build-wrapper-dump.json" /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/build-wrapper-dump.json" /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
         shell: pwsh
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -59,22 +60,26 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-          dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
           dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
           dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
+
+      - name: Run Integration Tests with Coverage
+        run: |
+          dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
+
       - name: List files in TestResults directory (debugging)
         run: |
           Write-Host "Listing files in TestResults directory"
           Get-ChildItem -Path TestResults -Recurse
         shell: pwsh
 
-      - name: End SonarCloud analysis
+      - name: End SonarCloud Analysis
         run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
 
   docker:
     runs-on: ubuntu-latest
-    needs: [sonarcloud]
+    needs: [build-test-analyze]
 
     steps:
       - name: Checkout repository
