@@ -2,12 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 using TSWMS.OrderService.Data;
+using TSWMS.OrderService.Shared.Interfaces;
 
 namespace TSWMS.OrderService.Api.IntegrationTests
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
+        public Mock<IOrderManager> OrderManagerMock { get; } = new Mock<IOrderManager>();
+
         protected override IHost CreateHost(IHostBuilder builder)
         {
             builder.UseEnvironment("Test");
@@ -28,6 +32,15 @@ namespace TSWMS.OrderService.Api.IntegrationTests
                 {
                     options.UseInMemoryDatabase("TestUserServiceDb");
                 });
+
+                // Remove IOrderManager if it exists and add the mock
+                var orderManagerDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IOrderManager));
+                if (orderManagerDescriptor != null)
+                {
+                    services.Remove(orderManagerDescriptor);
+                }
+                services.AddSingleton<IOrderManager>(OrderManagerMock.Object);
 
                 // Ensure the database is created using the in-memory configuration.
                 var sp = services.BuildServiceProvider();
