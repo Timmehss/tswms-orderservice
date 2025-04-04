@@ -1,3 +1,4 @@
+
 name: OrderService - Build, Test, and Deploy
 
 on:
@@ -59,9 +60,9 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-          dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
-          dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
-          dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
+            dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=./TestResults/ApiIntegration/ /p:CoverletOutputFormat=opencover
+            dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=./TestResults/BusinessUnit/ /p:CoverletOutputFormat=opencover
+            dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=./TestResults/DataUnit/ /p:CoverletOutputFormat=opencover
       - name: List files in TestResults directory (debugging)
         run: |
           Write-Host "Listing files in TestResults directory"
