@@ -71,7 +71,7 @@ jobs:
                 /d:sonar.coverage.exclusions="TSWS.OrderService.Api/Program.cs,TSWS.OrderService.Data/Migrations/**/*.cs,TSWS.OrderService.Data/OrdersDbContext.cs,TSWS.OrderService.Configurations/ServiceCollectionExtensions.cs,TSWS.OrderService.Shared/**" `
                 /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" `
                 /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
-            env:
+        env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Restore dependencies
