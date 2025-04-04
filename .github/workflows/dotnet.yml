@@ -33,7 +33,7 @@ jobs:
           path: |
             .
             !TestResults/
-            !**/bin/Debug/**/*.xml # Optional: filter unnecessary stuff
+            !**/bin/Debug/**/*.xml
 
   unit-tests:
     name: Unit Tests
