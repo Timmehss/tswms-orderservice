@@ -72,7 +72,9 @@ jobs:
         run: dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj `
           --collect:"XPlat Code Coverage" `
           --results-directory:"TestResults" `
-          --settings coverlet.runsettings
+          --logger "trx" `
+          /p:CoverletOutputFormat=opencover `
+          /p:CoverletOutput=TestResults/coverage.opencover.xml
 
       - name: Show coverage XML (optional)
         run: Get-Content -Path (Get-ChildItem -Path TestResults -Recurse -Filter 'coverage.opencover.xml').FullName
