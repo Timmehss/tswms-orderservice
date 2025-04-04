@@ -71,7 +71,7 @@ jobs:
         run: dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj `
           --collect:"XPlat Code Coverage" `
           --results-directory:"TestResults" `
-          --settings coverlet.runsettings
+          # --settings coverlet.runsettings
 
       - name: List files in TestResults directory (debugging)
         run: |
