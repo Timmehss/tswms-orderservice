@@ -82,8 +82,10 @@ jobs:
             --results-directory:"TestResults" `
             --settings coverlet.runsettings
 
-      - name: Show coverage XML (optional)
-        run: Get-Content -Path (Get-ChildItem -Path TestResults -Recurse -Filter 'coverage.opencover.xml').FullName
+      - name: List files in TestResults directory (debugging)
+        run: |
+          Write-Host "Listing files in TestResults directory"
+          Get-ChildItem -Path TestResults -Recurse
         shell: pwsh
 
       - name: End SonarCloud analysis
