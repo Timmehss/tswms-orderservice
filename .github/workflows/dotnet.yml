@@ -10,24 +10,25 @@ jobs:
   sonarcloud:
     name: Build, Test, and Analyze with Coverage
     runs-on: windows-latest
+
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu'
-      
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
           path: ~\sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      
+
       - name: Cache SonarQube Cloud scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
@@ -35,7 +36,7 @@ jobs:
           path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
-      
+
       - name: Install SonarQube Cloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
@@ -43,27 +44,47 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-      - name: Install dotnet-coverage
+      - name: Install ReportGenerator
         shell: powershell
-        run: dotnet tool install --global dotnet-coverage
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Build and Analyze with Test Coverage
+      - name: Build and Analyze with Coverlet Coverage
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-          dotnet build TSWMS.OrderService.sln  
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"Timmehss_TSWMS" `
+            /o:"tswms" `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.cs.vscoveragexml.reportsPaths="coverage-report/SonarQube.xml"
 
-          dotnet-coverage collect "dotnet test TSWMS.OrderService.Api.IntegrationTests --no-build --verbosity normal" -f xml -o "coverage.xml"
-          dotnet-coverage collect "dotnet test TSWMS.OrderService.Business.UnitTests --no-build --verbosity normal" -f xml -o "coverage.xml"
-          dotnet-coverage collect "dotnet test TSWMS.OrderService.Data.UnitTests --no-build --verbosity normal" -f xml -o "coverage.xml"
+          dotnet build TSWMS.OrderService.sln
+
+          dotnet test TSWMS.OrderService.Api.IntegrationTests `
+            --collect:"XPlat Code Coverage" `
+            --results-directory ./TestResults/Integration
+
+          dotnet test TSWMS.OrderService.Business.UnitTests `
+            --collect:"XPlat Code Coverage" `
+            --results-directory ./TestResults/Business
+
+          dotnet test TSWMS.OrderService.Data.UnitTests `
+            --collect:"XPlat Code Coverage" `
+            --results-directory ./TestResults/Data
+
+          reportgenerator `
+            -reports:"**/coverage.cobertura.xml" `
+            -targetdir:"coverage-report" `
+            -reporttypes:"SonarQube"
 
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   docker:
     runs-on: ubuntu-latest
     needs: [sonarcloud]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -87,4 +108,3 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
-
