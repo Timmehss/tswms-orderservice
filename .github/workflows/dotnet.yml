@@ -53,43 +53,47 @@ jobs:
 
       - name: Install SonarCloud scanner if not cached
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+        shell: pwsh
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
       - name: Begin SonarCloud Analysis
+        shell: pwsh
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/build-wrapper-dump.json" /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
-        shell: pwsh
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Restore dependencies
+        shell: pwsh
         run: dotnet restore
 
       - name: Build solution
+        shell: pwsh
         run: dotnet build --no-incremental
 
       - name: Run Unit Tests with Coverage
+        shell: pwsh
         run: |
           dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
           dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
 
       - name: Run Integration Tests with Coverage
+        shell: pwsh
         run: |
           dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
 
       - name: List files in TestResults directory (debugging)
         continue-on-error: true
+        shell: pwsh
         run: |
           Write-Host "Listing files in TestResults directory"
           Get-ChildItem -Path TestResults -Recurse
-        shell: pwsh
 
       - name: End SonarCloud Analysis
-        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   docker:
     name: Docker Build & Push
