@@ -59,7 +59,7 @@ jobs:
             /o:"tswms" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="coverage-report/SonarQube.xml"
+            /d:sonar.cs.**sonarqube**.reportsPaths="coverage-report/SonarQube.xml"
 
           dotnet build TSWMS.OrderService.sln
 
