@@ -44,7 +44,6 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-
       - name: Build and Analyze with Coverlet Coverage
         run: |
             .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/build-wrapper-dump.json" /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs" /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
@@ -60,13 +59,9 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-            dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=../TestResults/ApiIntegration/ /p:CoverletOutputFormat=opencover
-
-            dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=../TestResults/BusinessUnit/ /p:CoverletOutputFormat=opencover
-
-            dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --logger "trx" --results-directory "TestResults" /p:CollectCoverage=true /p:CoverletOutput=../TestResults/DataUnit/ /p:CoverletOutputFormat=opencover
-
-
+          dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
+          dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
+          dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults" --logger:"trx" /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" /p:CoverletOutputFormat="opencover"
       - name: List files in TestResults directory (debugging)
         run: |
           Write-Host "Listing files in TestResults directory"
