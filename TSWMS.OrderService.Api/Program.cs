@@ -7,6 +7,7 @@ using TSWMS.OrderService.Data;
 
 #endregion
 
+namespace TSWMS.OrderService.Api;
 public class Program
 {
     public static void Main(string[] args)
