@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Net;
 using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Models;
+using TSWMS.OrderService.Shared.Testing;
 
 namespace TSWMS.OrderService.Api.IntegrationTests.Controllers;
 
@@ -47,6 +48,21 @@ public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicatio
     {
         // Arrange
         _factory.OrderManagerMock.Setup(m => m.GetOrders()).ReturnsAsync(new List<Order>());
+
+        // Act
+        var response = await _client.GetAsync("/api/orders");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var stringResponse = await response.Content.ReadAsStringAsync();
+        Assert.Contains("No orders found.", stringResponse);
+    }
+
+    [Fact]
+    public async Task GetOrders_ReturnsNotFoundWhenOrdersNull()
+    {
+        // Arrange
+        _factory.OrderManagerMock.Setup(m => m.GetOrders()).ReturnsAsync((List<Order>)null);
 
         // Act
         var response = await _client.GetAsync("/api/orders");

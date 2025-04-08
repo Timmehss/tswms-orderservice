@@ -1,5 +1,7 @@
 ﻿using TSWMS.OrderService.Shared.Models;
 
+namespace TSWMS.OrderService.Shared.Testing;
+
 public static class TestDataHelper
 {
     public static List<Order> GetFakeOrders()
