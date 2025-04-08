@@ -7,7 +7,7 @@ using TSWMS.OrderService.Shared.Models;
 
 #endregion
 
-namespace TSWMS.OrderService.Business.UnitTests;
+namespace TSWMS.OrderService.Business.UnitTests.Managers;
 
 public class OrderManagerTests
 {

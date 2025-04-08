@@ -400,3 +400,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Ignore SonarQube folder
+.sonarqube/
+
+# Ignore test results folder
+TestResults/
+

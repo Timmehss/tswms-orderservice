@@ -1,4 +1,4 @@
-name: OrderService - Build, Test, and Deploy
+name: OrderService - Build, Test, Code Analysis and Deploy
 
 on:
   push:
@@ -7,70 +7,34 @@ on:
       - develop
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "8.0.x"
-
-      - name: Restore NuGet packages
-        run: dotnet restore
-        working-directory: Back-end/TSWMS.OrderService/TSWMS.OrderService.Api
-
-      - name: Build the project
-        run: dotnet build --configuration Release --no-restore
-        working-directory: Back-end/TSWMS.OrderService/TSWMS.OrderService.Api
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "8.0.x"
-
-      - name: Restore dependencies for all test projects
-        run: dotnet restore
-        working-directory: Back-end/TSWMS.OrderService
-
-      - name: Run Integration Tests
-        run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --configuration Release
-          
-      - name: Run Business Unit Tests
-        run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --configuration Release
-          
-      - name: Run Data Unit Tests
-        run: |
-          dotnet test Back-end/TSWMS.OrderService/Tests/TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --configuration Release
-
-  sonarcloud:
-    name: SonarCloud Analysis
+  build-test-analyze:
+    name: Build, Test, and Analyze
     runs-on: windows-latest
-    needs: [test]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: "zulu"
+          distribution: 'zulu'
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
         with:
-          fetch-depth: 0
+          dotnet-version: '7.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
@@ -87,32 +51,57 @@ jobs:
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
 
-      - name: Install SonarCloud scanner
+      - name: Install SonarCloud scanner if not cached
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+        shell: pwsh
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Add SonarCloud scanner to PATH
-        shell: powershell
+
+      - name: Begin SonarCloud Analysis
+        shell: pwsh
         run: |
-          $Env:PATH += ";$(pwd)\.sonar\scanner"
-      - name: Build and analyze with SonarCloud
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/build-wrapper-dump.json" /d:sonar.coverage.exclusions="TSWMS.OrderService.Api/Program.cs,TSWMS.OrderService.Data/Migrations/**/*.cs,TSWMS.OrderService.Data/OrdersDbContext.cs,TSWMS.OrderService.Configurations/ServiceCollectionExtensions.cs,TSWS.OrderService.Shared/**" /d:sonar.test.inclusions="**/TSWMS.OrderService.Api.IntegrationTests/**/*.cs,**/TSWMS.OrderService.Business.UnitTests/**/*.cs,**/TSWMS.OrderService.Data.UnitTests/**/*.cs" /d:sonar.cs.testProjectPattern=".*\.IntegrationTests|.*\.UnitTests"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore
+
+      - name: Build solution
+        shell: pwsh
+        run: dotnet build --no-incremental
+
+      - name: Run Unit Tests with Coverage
+        shell: pwsh
         run: |
-          .sonar\scanner\dotnet-sonarscanner begin /k:"Timmehss_TSWMS" /o:"tswms" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build Back-end/TSWMS.OrderService/TSWMS.OrderService.sln
-          .sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet test TSWMS.OrderService.Business.UnitTests/TSWMS.OrderService.Business.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
+          dotnet test TSWMS.OrderService.Data.UnitTests/TSWMS.OrderService.Data.UnitTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
+
+      - name: Run Integration Tests with Coverage
+        shell: pwsh
+        run: |
+          dotnet test TSWMS.OrderService.Api.IntegrationTests/TSWMS.OrderService.Api.IntegrationTests.csproj --collect:"XPlat Code Coverage;Format=opencover" --results-directory:"TestResults"
+
+      - name: List files in TestResults directory (debugging)
+        shell: pwsh
+        run: |
+          Write-Host "Listing files in TestResults directory"
+          Get-ChildItem -Path TestResults -Recurse
+
+      - name: End SonarCloud Analysis
+        shell: pwsh
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   docker:
+    name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: [test, sonarcloud]
+    needs: [build-test-analyze]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
@@ -129,7 +118,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: Back-end/TSWMS.OrderService
-          file: Back-end/TSWMS.OrderService/Dockerfile
+          context: .
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest

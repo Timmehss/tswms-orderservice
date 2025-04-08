@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TSWMS.OrderService.Business\TSWMS.OrderService.Business.csproj" />
-    <ProjectReference Include="..\..\TSWMS.OrderService.Shared\TSWMS.OrderService.Shared.csproj" />
+    <ProjectReference Include="..\TSWMS.OrderService.Business\TSWMS.OrderService.Business.csproj" />
+    <ProjectReference Include="..\TSWMS.OrderService.Shared\TSWMS.OrderService.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
