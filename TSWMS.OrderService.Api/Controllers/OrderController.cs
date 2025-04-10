@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Models;
 
 #endregion
 
@@ -38,6 +39,30 @@ public class OrderController : ControllerBase
         }
         catch (Exception ex)
         {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
+    {
+        try
+        {
+            // ModelState validation will occur automatically due to FluentValidation
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var order = _mapper.Map<Order>(orderDto);
+
+            await _orderManager.CreateOrder(order);
+
+            return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
+        }
+        catch (Exception ex)
+        {
+            // Consider logging the error 
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
