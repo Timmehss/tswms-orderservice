@@ -17,7 +17,7 @@ public class OrderManager : IOrderManager
         return await _orderRepository.GetOrders();
     }
 
-    public async Task CreateOrder(Order order)
+    public async Task<Order> CreateOrder(Order order)
     {
         return await _orderRepository.CreateOrder(order);
     }

@@ -1,7 +1,11 @@
 #region Usings
 
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
+using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
 
@@ -48,8 +52,19 @@ public class Program
         // Configure dependency injection for repositories
         builder.Services.ConfigureRepositories();
 
+        // Configure FluentValidation
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();
+
+
         // Additional service registrations
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Apply camelCase to api responses
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -68,6 +83,9 @@ public class Program
         }
 
         app.UseCors("TSWMSPolicy");
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 
         if (app.Environment.IsDevelopment() || environment == "Docker")
         {

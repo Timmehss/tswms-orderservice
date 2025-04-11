@@ -46,24 +46,11 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
     {
-        try
-        {
-            // ModelState validation will occur automatically due to FluentValidation
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        var order = _mapper.Map<Order>(orderDto);
 
-            var order = _mapper.Map<Order>(orderDto);
+        await _orderManager.CreateOrder(order);
 
-            await _orderManager.CreateOrder(order);
-
-            return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
-        }
-        catch (Exception ex)
-        {
-            // Consider logging the error 
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
+        return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
     }
+
 }
