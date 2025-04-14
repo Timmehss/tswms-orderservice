@@ -12,7 +12,7 @@ public static class TestDataHelper
             {
                 OrderId = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
-                TotalAmount = 150.00M,
+                TotalPrice = 150.00M,
                 OrderDate = DateTime.Now,
                 OrderItems = CreateFakeOrderItems()
             },
@@ -20,7 +20,7 @@ public static class TestDataHelper
             {
                 OrderId = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
-                TotalAmount = 200.00M,
+                TotalPrice = 200.00M,
                 OrderDate = DateTime.Now,
                 OrderItems = CreateFakeOrderItems()
             }
@@ -36,21 +36,21 @@ public static class TestDataHelper
                 OrderId = Guid.NewGuid(),
                 ProductId = Guid.NewGuid(),
                 Quantity = 2,
-                Price = 25.00m
+                UnitPrice = 25.00m
             },
             new OrderItem
             {
                 OrderId = Guid.NewGuid(),
                 ProductId = Guid.NewGuid(),
                 Quantity = 1,
-                Price = 50.00m
+                UnitPrice = 50.00m
             },
             new OrderItem
             {
                 OrderId = Guid.NewGuid(),
                 ProductId = Guid.NewGuid(),
                 Quantity = 3,
-                Price = 10.00m
+                UnitPrice = 10.00m
             }
         };
     }

@@ -13,14 +13,18 @@ public class OrderManagerTests
 {
     private readonly OrderManager _orderManager;
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
+    private readonly Mock<IRabbitMqPublisher> _rabbitMqPublisherMock;
 
     public OrderManagerTests()
     {
         // Mock the IOrderRepository
         _orderRepositoryMock = new Mock<IOrderRepository>();
 
-        // Initialize OrderManager with the mocked repository
-        _orderManager = new OrderManager(_orderRepositoryMock.Object);
+        // Mock the IRabbitMqPublisher
+        _rabbitMqPublisherMock = new Mock<IRabbitMqPublisher>();
+
+        // Initialize OrderManager with the mocked repository and mocked publisher
+        _orderManager = new OrderManager(_orderRepositoryMock.Object, _rabbitMqPublisherMock.Object);
     }
 
     [Fact]
@@ -33,7 +37,7 @@ public class OrderManagerTests
             {
                 OrderId = Guid.Parse("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"),
                 UserId = Guid.Parse("52348777-7a0e-4139-9489-87dff9d47b7e"),
-                TotalAmount = 160.00m,
+                TotalPrice = 160.00m,
                 OrderDate = new DateTime(2024, 7, 15),
                 OrderItems = new List<OrderItem>
                 {
@@ -42,7 +46,7 @@ public class OrderManagerTests
                         OrderId = Guid.Parse("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"),
                         ProductId = Guid.Parse("de3c9457-f6a8-4b4b-a4c1-f9d3db6f1e1d"),
                         Quantity = 1,
-                        Price = 30.00m
+                        UnitPrice = 30.00m
                     }
                 }
             }
@@ -64,7 +68,7 @@ public class OrderManagerTests
         var firstOrderItem = firstOrder.OrderItems.First();
         Assert.Equal(expectedOrders.First().OrderItems.First().ProductId, firstOrderItem.ProductId);
         Assert.Equal(expectedOrders.First().OrderItems.First().Quantity, firstOrderItem.Quantity);
-        Assert.Equal(expectedOrders.First().OrderItems.First().Price, firstOrderItem.Price);
+        Assert.Equal(expectedOrders.First().OrderItems.First().UnitPrice, firstOrderItem.UnitPrice);
 
         // Verify that the GetOrders method on the repository was called exactly once
         _orderRepositoryMock.Verify(repo => repo.GetOrders(), Times.Once);

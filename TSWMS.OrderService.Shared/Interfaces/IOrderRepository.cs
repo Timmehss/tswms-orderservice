@@ -6,4 +6,5 @@ public interface IOrderRepository
 {
     Task<IEnumerable<Order>> GetOrders();
     Task<Order> CreateOrder(Order order);
+    decimal GetProductPrice(Guid productId);
 }

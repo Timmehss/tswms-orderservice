@@ -37,4 +37,9 @@ public class OrderRepository : IOrderRepository
 
         return order;
     }
+
+    public decimal GetProductPrice(Guid productId)
+    {
+        throw new NotImplementedException();
+    }
 }

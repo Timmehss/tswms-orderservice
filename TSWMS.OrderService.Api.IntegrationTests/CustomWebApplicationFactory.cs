@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿#region Usings
+
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,11 +8,14 @@ using Moq;
 using TSWMS.OrderService.Data;
 using TSWMS.OrderService.Shared.Interfaces;
 
+#endregion
+
 namespace TSWMS.OrderService.Api.IntegrationTests
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
         public Mock<IOrderManager> OrderManagerMock { get; } = new Mock<IOrderManager>();
+        public Mock<IRabbitMqPublisher> RabbitMqPublisherMock { get; } = new Mock<IRabbitMqPublisher>();
 
         protected override IHost CreateHost(IHostBuilder builder)
         {
@@ -41,6 +46,16 @@ namespace TSWMS.OrderService.Api.IntegrationTests
                     services.Remove(orderManagerDescriptor);
                 }
                 services.AddSingleton<IOrderManager>(OrderManagerMock.Object);
+
+                // Remove IRabbitMqPublisher if it exists and add the mock
+                var rabbitMqPublisherDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IRabbitMqPublisher));
+
+                if (rabbitMqPublisherDescriptor != null)
+                {
+                    services.Remove(rabbitMqPublisherDescriptor);
+                }
+                services.AddSingleton<IRabbitMqPublisher>(RabbitMqPublisherMock.Object);
 
                 // Ensure the database is created using the in-memory configuration.
                 var sp = services.BuildServiceProvider();

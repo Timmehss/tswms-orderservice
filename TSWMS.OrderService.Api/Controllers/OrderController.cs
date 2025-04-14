@@ -44,7 +44,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
     {
         var order = _mapper.Map<Order>(orderDto);
 

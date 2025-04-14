@@ -8,13 +8,14 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
+using TSWMS.OrderService.Shared.Interfaces;
 
 #endregion
 
 namespace TSWMS.OrderService.Api;
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
 
         var builder = WebApplication.CreateBuilder(args);
@@ -54,8 +55,10 @@ public class Program
 
         // Configure FluentValidation
         builder.Services.AddFluentValidationAutoValidation();
-        builder.Services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
+        // Register RabbitMQ Publisher
+        builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 
         // Additional service registrations
         builder.Services.AddControllers()
@@ -69,6 +72,14 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+
+        // Initialize RabbitMQ Publisher
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            var rabbitMqPublisher = services.GetRequiredService<IRabbitMqPublisher>();
+            await rabbitMqPublisher.InitAsync();
+        }
 
         if (environment != "Test")
         {
