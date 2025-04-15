@@ -1,59 +1,50 @@
 ﻿using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Models;
-using TSWMS.OrderService.Shared.Models.Events;
+using TSWMS.OrderService.Shared.Models.Requests;
 
 namespace TSWMS.OrderService.Business.Managers;
 
 public class OrderManager : IOrderManager
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IRabbitMqPublisher _rabbitMqPublisher;
+    private readonly IProductPriceRequester _productPriceRequester;
 
-    public OrderManager(IOrderRepository orderRepository, IRabbitMqPublisher rabbitMqPublisher)
+    public OrderManager(IOrderRepository orderRepository, IProductPriceRequester productPriceRequester)
     {
         _orderRepository = orderRepository;
-        _rabbitMqPublisher = rabbitMqPublisher;
+        _productPriceRequester = productPriceRequester;
     }
 
-    public async Task<IEnumerable<Order>> GetOrders()
+    public async Task<IEnumerable<Order>> GetOrdersAsync()
     {
         return await _orderRepository.GetOrders();
     }
 
-    public async Task<Order> CreateOrder(Order order)
+    public async Task<Order> CreateOrderAsync(Order order)
     {
-        // Create a new OrderId
-        order.OrderId = Guid.NewGuid();
+        if (order == null || !order.OrderItems.Any())
+            throw new ArgumentException("Order must have at least one item.");
 
-        // Set the OrderDate to the current time
-        order.OrderDate = DateTime.UtcNow;
+        var productIds = order.OrderItems
+            .Select(item => item.ProductId)
+            .Distinct()
+            .ToList();
 
-        // Calculate the total amount while setting prices for order items
-        decimal totalAmount = 0;
+        var request = new BatchProductPriceRequest { ProductIds = productIds };
+        var response = await _productPriceRequester.RequestProductPricesAsync(request);
+
         foreach (var item in order.OrderItems)
         {
-            // Assume there's a method GetProductPrice that fetches current price from a product repository
-            //item.UnitPrice = await _orderRepository.GetProductPrice(item.ProductId);
-            //totalAmount += item.UnitPrice * item.Quantity;
+            var product = response.ProductPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
+            if (product == null)
+                throw new InvalidOperationException($"No price found for product {item.ProductId}");
+
+            item.UnitPrice = product.UnitPrice;
+            order.TotalPrice += product.UnitPrice * item.Quantity;
         }
 
-        order.TotalPrice = totalAmount;
-
-        // Save the order to the database
         var createdOrder = await _orderRepository.CreateOrder(order);
-
-        // Publish stock update event if order creation is successful
-        if (createdOrder != null && createdOrder.OrderItems.Any())
-        {
-            var stockUpdateEvents = createdOrder.OrderItems.Select(item => new StockUpdateEvent
-            {
-                ProductId = item.ProductId,
-                Quantity = item.Quantity
-            });
-
-            await _rabbitMqPublisher.PublishStockUpdate(stockUpdateEvents);
-        }
-
         return createdOrder;
     }
+
 }

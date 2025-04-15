@@ -28,7 +28,7 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var orders = await _orderManager.GetOrders();
+            var orders = await _orderManager.GetOrdersAsync();
 
             if (orders == null || !orders.Any())
             {
@@ -48,7 +48,7 @@ public class OrderController : ControllerBase
     {
         var order = _mapper.Map<Order>(orderDto);
 
-        await _orderManager.CreateOrder(order);
+        await _orderManager.CreateOrderAsync(order);
 
         return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
     }

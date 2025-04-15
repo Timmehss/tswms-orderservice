@@ -13,7 +13,7 @@ public class OrderManagerTests
 {
     private readonly OrderManager _orderManager;
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
-    private readonly Mock<IRabbitMqPublisher> _rabbitMqPublisherMock;
+    private readonly Mock<IProductPriceRequester> _rabbitMqPublisherMock;
 
     public OrderManagerTests()
     {
@@ -21,7 +21,7 @@ public class OrderManagerTests
         _orderRepositoryMock = new Mock<IOrderRepository>();
 
         // Mock the IRabbitMqPublisher
-        _rabbitMqPublisherMock = new Mock<IRabbitMqPublisher>();
+        _rabbitMqPublisherMock = new Mock<IProductPriceRequester>();
 
         // Initialize OrderManager with the mocked repository and mocked publisher
         _orderManager = new OrderManager(_orderRepositoryMock.Object, _rabbitMqPublisherMock.Object);
@@ -55,7 +55,7 @@ public class OrderManagerTests
         _orderRepositoryMock.Setup(repo => repo.GetOrders()).ReturnsAsync(expectedOrders);
 
         // Act
-        var orders = await _orderManager.GetOrders();
+        var orders = await _orderManager.GetOrdersAsync();
 
         // Assert
         Assert.NotNull(orders);

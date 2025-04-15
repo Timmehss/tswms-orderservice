@@ -15,7 +15,7 @@ namespace TSWMS.OrderService.Api.IntegrationTests
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
         public Mock<IOrderManager> OrderManagerMock { get; } = new Mock<IOrderManager>();
-        public Mock<IRabbitMqPublisher> RabbitMqPublisherMock { get; } = new Mock<IRabbitMqPublisher>();
+        public Mock<IProductPriceRequester> RabbitMqPublisherMock { get; } = new Mock<IProductPriceRequester>();
 
         protected override IHost CreateHost(IHostBuilder builder)
         {
@@ -49,13 +49,13 @@ namespace TSWMS.OrderService.Api.IntegrationTests
 
                 // Remove IRabbitMqPublisher if it exists and add the mock
                 var rabbitMqPublisherDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(IRabbitMqPublisher));
+                    d => d.ServiceType == typeof(IProductPriceRequester));
 
                 if (rabbitMqPublisherDescriptor != null)
                 {
                     services.Remove(rabbitMqPublisherDescriptor);
                 }
-                services.AddSingleton<IRabbitMqPublisher>(RabbitMqPublisherMock.Object);
+                services.AddSingleton<IProductPriceRequester>(RabbitMqPublisherMock.Object);
 
                 // Ensure the database is created using the in-memory configuration.
                 var sp = services.BuildServiceProvider();

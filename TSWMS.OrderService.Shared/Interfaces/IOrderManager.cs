@@ -4,6 +4,6 @@ namespace TSWMS.OrderService.Shared.Interfaces;
 
 public interface IOrderManager
 {
-    Task<IEnumerable<Order>> GetOrders();
-    Task<Order> CreateOrder(Order order);
+    Task<IEnumerable<Order>> GetOrdersAsync();
+    Task<Order> CreateOrderAsync(Order order);
 }

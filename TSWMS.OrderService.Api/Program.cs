@@ -3,6 +3,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
@@ -17,7 +18,6 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-
         var builder = WebApplication.CreateBuilder(args);
 
         // Get Environment
@@ -29,7 +29,7 @@ public class Program
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
-        // Add Cors Policie
+        // Add Cors Policy
         builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>
         {
             builder.SetIsOriginAllowed((host) => true)
@@ -47,24 +47,35 @@ public class Program
         // Configure EntityFramework UserDbContext
         builder.Services.ConfigureUserDbContext(builder.Configuration, environment);
 
-        // Configure dependency injection for managers
+        // Configure dependency injection for managers and repositories
         builder.Services.ConfigureManagers();
-
-        // Configure dependency injection for repositories
         builder.Services.ConfigureRepositories();
 
         // Configure FluentValidation
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
-        // Register RabbitMQ Publisher
-        builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+        // Register RabbitMQ ConnectionFactory as Singleton
+        builder.Services.AddSingleton<IConnectionFactory>(sp =>
+        {
+            // Configure and return a new instance of ConnectionFactory
+            var factory = new ConnectionFactory
+            {
+                HostName = "localhost",  // Replace with your RabbitMQ server address
+                UserName = "guest",     // Replace with your RabbitMQ credentials
+                Password = "guest",     // Replace with your RabbitMQ credentials
+                VirtualHost = "/"       // Replace with your RabbitMQ virtual host if necessary
+            };
+            return factory;
+        });
+
+        // Register RabbitMQ Publisher (as Singleton)
+        builder.Services.AddSingleton<IProductPriceRequester, RabbitMqProductPriceRequester>();
 
         // Additional service registrations
         builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
-                // Apply camelCase to api responses
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
@@ -73,14 +84,24 @@ public class Program
 
         var app = builder.Build();
 
-        // Initialize RabbitMQ Publisher
+        // Initialize RabbitMQ Publisher asynchronously after building the app
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
-            var rabbitMqPublisher = services.GetRequiredService<IRabbitMqPublisher>();
-            await rabbitMqPublisher.InitAsync();
+            var rabbitMqPublisher = services.GetRequiredService<IProductPriceRequester>();
+
+            try
+            {
+                await rabbitMqPublisher.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the error if RabbitMQ initialization fails
+                app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
+            }
         }
 
+        // Apply Database Migrations if it's not in "Test" environment
         if (environment != "Test")
         {
             using (var scope = app.Services.CreateScope())
@@ -88,25 +109,32 @@ public class Program
                 var services = scope.ServiceProvider;
                 var dbContext = services.GetRequiredService<OrdersDbContext>();
 
-                // Apply pending migrations or create database if it doesn't exist
+                // Apply pending migrations or create the database if it doesn't exist
                 dbContext.Database.Migrate();
             }
         }
 
+        // Use CORS policy
         app.UseCors("TSWMSPolicy");
 
+        // Exception handling middleware
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-
+        // Swagger setup for development or Docker
         if (app.Environment.IsDevelopment() || environment == "Docker")
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
+        // Enable HTTPS redirection and authorization
         app.UseHttpsRedirection();
         app.UseAuthorization();
+
+        // Map controllers to endpoints
         app.MapControllers();
+
+        // Run the application
         app.Run();
     }
 }

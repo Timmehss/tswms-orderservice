@@ -23,7 +23,7 @@ public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicatio
     {
         // Arrange
         var fakeOrders = TestDataHelper.GetFakeOrders();
-        _factory.OrderManagerMock.Setup(m => m.GetOrders()).ReturnsAsync(fakeOrders);
+        _factory.OrderManagerMock.Setup(m => m.GetOrdersAsync()).ReturnsAsync(fakeOrders);
 
         // Act
         var response = await _client.GetAsync("/api/orders");
@@ -47,7 +47,7 @@ public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicatio
     public async Task GetOrders_ReturnsNotFoundWhenNoOrders()
     {
         // Arrange
-        _factory.OrderManagerMock.Setup(m => m.GetOrders()).ReturnsAsync(new List<Order>());
+        _factory.OrderManagerMock.Setup(m => m.GetOrdersAsync()).ReturnsAsync(new List<Order>());
 
         // Act
         var response = await _client.GetAsync("/api/orders");
@@ -62,7 +62,7 @@ public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicatio
     public async Task GetOrders_ReturnsNotFoundWhenOrdersNull()
     {
         // Arrange
-        _factory.OrderManagerMock.Setup(m => m.GetOrders()).ReturnsAsync((List<Order>)null);
+        _factory.OrderManagerMock.Setup(m => m.GetOrdersAsync()).ReturnsAsync((List<Order>)null);
 
         // Act
         var response = await _client.GetAsync("/api/orders");
@@ -77,7 +77,7 @@ public class OrderControllerIntegrationTests : IClassFixture<CustomWebApplicatio
     public async Task GetOrders_HandlesExceptionAndReturnsServerError()
     {
         // Arrange
-        _factory.OrderManagerMock.Setup(m => m.GetOrders()).ThrowsAsync(new Exception("test exception"));
+        _factory.OrderManagerMock.Setup(m => m.GetOrdersAsync()).ThrowsAsync(new Exception("test exception"));
 
         // Act
         var response = await _client.GetAsync("/api/orders");
