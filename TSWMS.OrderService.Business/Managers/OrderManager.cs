@@ -43,7 +43,10 @@ public class OrderManager : IOrderManager
             order.TotalPrice += product.UnitPrice * item.Quantity;
         }
 
+        order.OrderDate = DateTime.UtcNow;
+
         var createdOrder = await _orderRepository.CreateOrder(order);
+
         return createdOrder;
     }
 
