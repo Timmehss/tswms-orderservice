@@ -12,13 +12,13 @@ using TSWMS.OrderService.Shared.Models.Responses;
 
 namespace TSWMS.OrderService.Data;
 
-public class RabbitMqProductPriceRequester : IProductPriceRequester, IAsyncDisposable
+public class ProductPriceRequester : IProductPriceRequester
 {
     private readonly IConnectionFactory _connectionFactory;
     private IConnection? _connection;
     private IChannel? _channel;
 
-    public RabbitMqProductPriceRequester(IConnectionFactory connectionFactory)
+    public ProductPriceRequester(IConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }
@@ -96,7 +96,7 @@ public class RabbitMqProductPriceRequester : IProductPriceRequester, IAsyncDispo
         );
 
         // Timeout logic: fail if no reply after 10 seconds
-        var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(10)));
+        var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(60)));
 
         if (completedTask != tcs.Task)
             throw new TimeoutException("Timed out waiting for product price response from ProductService.");
@@ -104,17 +104,5 @@ public class RabbitMqProductPriceRequester : IProductPriceRequester, IAsyncDispo
         return await tcs.Task;
     }
 
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_channel != null)
-            await _channel.CloseAsync();
-
-        if (_connection != null)
-            await _connection.CloseAsync();
-
-        _channel?.Dispose();
-        _connection?.Dispose();
-    }
 }
 

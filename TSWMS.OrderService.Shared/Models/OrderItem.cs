@@ -29,8 +29,6 @@ public class OrderItem
 
     public decimal TotalPrice { get; private set; }
 
-    public Order Order { get; set; }
-
     private void UpdateTotalPrice()
     {
         TotalPrice = _quantity * _unitPrice;

@@ -2,5 +2,5 @@
 
 public class BatchProductPriceResponse
 {
-    public List<ProductPrice> ProductPrices { get; set; } = new();
+    public List<ProductPrice> ProductPrices { get; set; }
 }

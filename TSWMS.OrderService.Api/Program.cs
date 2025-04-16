@@ -51,26 +51,23 @@ public class Program
         builder.Services.ConfigureManagers();
         builder.Services.ConfigureRepositories();
 
-        // Configure FluentValidation
-        builder.Services.AddFluentValidationAutoValidation();
-        builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
-
-        // Register RabbitMQ ConnectionFactory as Singleton
-        builder.Services.AddSingleton<IConnectionFactory>(sp =>
+        builder.Services.AddSingleton<IConnectionFactory>(_ =>
         {
-            // Configure and return a new instance of ConnectionFactory
             var factory = new ConnectionFactory
             {
-                HostName = "localhost",  // Replace with your RabbitMQ server address
-                UserName = "guest",     // Replace with your RabbitMQ credentials
-                Password = "guest",     // Replace with your RabbitMQ credentials
-                VirtualHost = "/"       // Replace with your RabbitMQ virtual host if necessary
+                HostName = "localhost",
+                UserName = "guest",
+                Password = "guest"
             };
             return factory;
         });
 
+        // Configure FluentValidation
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
+
         // Register RabbitMQ Publisher (as Singleton)
-        builder.Services.AddSingleton<IProductPriceRequester, RabbitMqProductPriceRequester>();
+        builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
 
         // Additional service registrations
         builder.Services.AddControllers()

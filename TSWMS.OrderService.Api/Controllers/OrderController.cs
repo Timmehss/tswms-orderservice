@@ -46,11 +46,19 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
     {
-        var order = _mapper.Map<Order>(orderDto);
+        try
+        {
+            var order = _mapper.Map<Order>(orderDto);
 
-        await _orderManager.CreateOrderAsync(order);
+            await _orderManager.CreateOrderAsync(order);
 
-        return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
+            return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
 }
