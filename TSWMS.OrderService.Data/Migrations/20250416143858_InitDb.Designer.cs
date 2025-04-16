@@ -12,8 +12,8 @@ using TSWMS.OrderService.Data;
 namespace TSWMS.OrderService.Data.Migrations
 {
     [DbContext(typeof(OrdersDbContext))]
-    [Migration("20250416090851_testmigration")]
-    partial class testmigration
+    [Migration("20250416143858_InitDb")]
+    partial class InitDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

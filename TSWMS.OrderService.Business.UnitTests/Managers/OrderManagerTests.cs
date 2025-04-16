@@ -13,18 +13,20 @@ public class OrderManagerTests
 {
     private readonly OrderManager _orderManager;
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
-    private readonly Mock<IProductPriceRequester> _rabbitMqPublisherMock;
+    private readonly Mock<IProductPriceRequester> _productPriceRequester;
+    private readonly Mock<IUpdateProductStockRequester> _updateProductStockRequester;
 
     public OrderManagerTests()
     {
         // Mock the IOrderRepository
         _orderRepositoryMock = new Mock<IOrderRepository>();
 
-        // Mock the IRabbitMqPublisher
-        _rabbitMqPublisherMock = new Mock<IProductPriceRequester>();
+        // Mock the RabbitMQ Requesters
+        _productPriceRequester = new Mock<IProductPriceRequester>();
+        _updateProductStockRequester = new Mock<IUpdateProductStockRequester>();
 
         // Initialize OrderManager with the mocked repository and mocked publisher
-        _orderManager = new OrderManager(_orderRepositoryMock.Object, _rabbitMqPublisherMock.Object);
+        _orderManager = new OrderManager(_orderRepositoryMock.Object, _productPriceRequester.Object, _updateProductStockRequester.Object);
     }
 
     [Fact]

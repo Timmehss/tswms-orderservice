@@ -8,11 +8,13 @@ public class OrderManager : IOrderManager
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductPriceRequester _productPriceRequester;
+    private readonly IUpdateProductStockRequester _updateStockRequester;
 
-    public OrderManager(IOrderRepository orderRepository, IProductPriceRequester productPriceRequester)
+    public OrderManager(IOrderRepository orderRepository, IProductPriceRequester productPriceRequester, IUpdateProductStockRequester updateStockRequester)
     {
         _orderRepository = orderRepository;
         _productPriceRequester = productPriceRequester;
+        _updateStockRequester = updateStockRequester;
     }
 
     public async Task<IEnumerable<Order>> GetOrdersAsync()
@@ -46,6 +48,20 @@ public class OrderManager : IOrderManager
         order.OrderDate = DateTime.UtcNow;
 
         var createdOrder = await _orderRepository.CreateOrder(order);
+
+        if (createdOrder == null)
+        {
+            throw new InvalidOperationException($"There was an error creating the order!");
+        }
+
+        // Request stock update on ordered products
+        var stockUpdates = order.OrderItems.Select(item => new UpdateProductStock
+        {
+            ProductId = item.ProductId,
+            QuantityOrdered = item.Quantity
+        }).ToList();
+
+        await _updateStockRequester.SendStockUpdateRequestAsync(stockUpdates);
 
         return createdOrder;
     }

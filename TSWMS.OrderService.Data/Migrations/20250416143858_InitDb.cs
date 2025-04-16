@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TSWMS.OrderService.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateTable : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace TSWMS.OrderService.Data.Migrations
                 {
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -34,7 +34,8 @@ namespace TSWMS.OrderService.Data.Migrations
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,21 +60,21 @@ namespace TSWMS.OrderService.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "OrderItems",
-                columns: new[] { "OrderId", "ProductId", "Quantity", "UnitPrice" },
+                columns: new[] { "OrderId", "ProductId", "Quantity", "TotalPrice", "UnitPrice" },
                 values: new object[,]
                 {
-                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("7adf9a42-b9fd-47f2-bf89-a09153ce7ab8"), 1, 40.00m },
-                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("de3c9457-f6a8-4b4b-a4c1-f9d3db6f1e1d"), 1, 30.00m },
-                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("e8794f64-d634-4b74-a0a2-35f4fbf7b486"), 1, 40.00m },
-                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("ff465d9f-4060-44a3-a5ec-5aeb53f8c810"), 1, 50.00m },
-                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("0e5d9b8b-c30d-4d53-8298-a39e0acadcfc"), 1, 50.00m },
-                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("6609f9d5-1b3e-4c7e-bccc-996c7bda68c8"), 1, 55.00m },
-                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("7b13656f-8a1f-4ba4-9dfb-340f2e1c362c"), 1, 55.00m },
-                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("a45d88c6-5d79-4c8b-9fc0-b0bb3eb3ab88"), 1, 50.00m },
-                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("15d94488-db9b-4767-9e92-d6328b735e0e"), 1, 30.00m },
-                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("4d76bc3a-168d-4054-8154-6f6246355e53"), 1, 25.00m },
-                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("9e5d721f-f729-4e8f-8ebe-3704d476fbeb"), 1, 40.00m },
-                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("bcc9673c-5c3f-4798-808f-b48e372b1dae"), 1, 30.00m }
+                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("7adf9a42-b9fd-47f2-bf89-a09153ce7ab8"), 1, 40.00m, 40.00m },
+                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("de3c9457-f6a8-4b4b-a4c1-f9d3db6f1e1d"), 1, 30.00m, 30.00m },
+                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("e8794f64-d634-4b74-a0a2-35f4fbf7b486"), 1, 40.00m, 40.00m },
+                    { new Guid("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"), new Guid("ff465d9f-4060-44a3-a5ec-5aeb53f8c810"), 2, 100.00m, 50.00m },
+                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("0e5d9b8b-c30d-4d53-8298-a39e0acadcfc"), 1, 50.00m, 50.00m },
+                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("6609f9d5-1b3e-4c7e-bccc-996c7bda68c8"), 1, 55.00m, 55.00m },
+                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("7b13656f-8a1f-4ba4-9dfb-340f2e1c362c"), 1, 55.00m, 55.00m },
+                    { new Guid("beca8a32-5477-4b27-80f7-3495936edfd8"), new Guid("a45d88c6-5d79-4c8b-9fc0-b0bb3eb3ab88"), 1, 50.00m, 50.00m },
+                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("15d94488-db9b-4767-9e92-d6328b735e0e"), 1, 30.00m, 30.00m },
+                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("4d76bc3a-168d-4054-8154-6f6246355e53"), 3, 75.00m, 25.00m },
+                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("9e5d721f-f729-4e8f-8ebe-3704d476fbeb"), 5, 200.00m, 40.00m },
+                    { new Guid("fd92009e-9c89-45f8-9ac6-29edeeefce61"), new Guid("bcc9673c-5c3f-4798-808f-b48e372b1dae"), 1, 30.00m, 30.00m }
                 });
         }
 

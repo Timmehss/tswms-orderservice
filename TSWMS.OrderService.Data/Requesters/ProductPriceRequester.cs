@@ -10,7 +10,7 @@ using TSWMS.OrderService.Shared.Models.Responses;
 
 #endregion
 
-namespace TSWMS.OrderService.Data;
+namespace TSWMS.OrderService.Data.Requesters;
 
 public class ProductPriceRequester : IProductPriceRequester
 {
@@ -40,15 +40,16 @@ public class ProductPriceRequester : IProductPriceRequester
     public async Task<BatchProductPriceResponse> RequestProductPricesAsync(BatchProductPriceRequest request)
     {
         if (_channel == null)
-            throw new InvalidOperationException("RabbitMqProductPriceRequester is not initialized. Call InitializeAsync() before using.");
+            throw new InvalidOperationException("ProductPriceRequester is not initialized. Call InitializeAsync() before using.");
 
-        var tcs = new TaskCompletionSource<BatchProductPriceResponse>();  // Task to await reply
+        // Task to await reply
+        var tcs = new TaskCompletionSource<BatchProductPriceResponse>();
 
         var correlationId = Guid.NewGuid().ToString();
 
         // Declare a temporary, exclusive reply queue
         var replyQueue = await _channel.QueueDeclareAsync(
-            queue: string.Empty, // Let RabbitMQ generate a random queue name
+            queue: string.Empty,
             durable: false,
             exclusive: true,
             autoDelete: true
@@ -68,7 +69,7 @@ public class ProductPriceRequester : IProductPriceRequester
                 tcs.SetResult(response!);
             }
 
-            await Task.Yield(); // let the event complete
+            await Task.Yield();
         };
 
         // Start consuming the reply queue
@@ -95,7 +96,7 @@ public class ProductPriceRequester : IProductPriceRequester
             body: messageBody
         );
 
-        // Timeout logic: fail if no reply after 10 seconds
+        // Timeout logic: fail if no reply after 60 seconds
         var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(60)));
 
         if (completedTask != tcs.Task)

@@ -9,6 +9,7 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
+using TSWMS.OrderService.Data.Requesters;
 using TSWMS.OrderService.Shared.Interfaces;
 
 #endregion
@@ -66,8 +67,9 @@ public class Program
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
-        // Register RabbitMQ Publisher (as Singleton)
+        // Register RabbitMQ Publisher/Requester
         builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
+        builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
 
         // Additional service registrations
         builder.Services.AddControllers()
@@ -81,15 +83,17 @@ public class Program
 
         var app = builder.Build();
 
-        // Initialize RabbitMQ Publisher asynchronously after building the app
+        // Initialize RabbitMQ Publisher/Requester within async context
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
-            var rabbitMqPublisher = services.GetRequiredService<IProductPriceRequester>();
+            var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
+            var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
 
             try
             {
-                await rabbitMqPublisher.InitializeAsync();
+                await productPriceRequester.InitializeAsync();
+                await updateStockRequester.InitializeAsync();
             }
             catch (Exception ex)
             {

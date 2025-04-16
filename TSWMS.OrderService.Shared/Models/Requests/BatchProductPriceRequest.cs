@@ -2,5 +2,5 @@
 
 public class BatchProductPriceRequest
 {
-    public List<Guid> ProductIds { get; set; }
+    public List<Guid> ProductIds { get; set; } = new List<Guid>();
 }
