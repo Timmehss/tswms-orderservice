@@ -1,12 +1,15 @@
 ﻿#region Usings
 
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
+using TSWMS.OrderService.Shared.Helpers;
 using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Models.Requests;
 using TSWMS.OrderService.Shared.Models.Responses;
+using TSWMS.OrderService.Shared.Options;
 
 #endregion
 
@@ -17,10 +20,12 @@ public class ProductPriceRequester : IProductPriceRequester
     private readonly IConnectionFactory _connectionFactory;
     private IConnection? _connection;
     private IChannel? _channel;
+    private readonly string _secretKey;
 
-    public ProductPriceRequester(IConnectionFactory connectionFactory)
+    public ProductPriceRequester(IConnectionFactory connectionFactory, IOptions<HmacOptions> hmacOptions)
     {
         _connectionFactory = connectionFactory;
+        _secretKey = hmacOptions.Value.SecretKey;
     }
 
     public async Task InitializeAsync()
@@ -28,7 +33,7 @@ public class ProductPriceRequester : IProductPriceRequester
         _connection = await _connectionFactory.CreateConnectionAsync();
         _channel = await _connection.CreateChannelAsync();
 
-        // Optionally declare the queue to ensure it exists
+        // Declare the queue to ensure it exists
         await _channel.QueueDeclareAsync(
             queue: "product.price.request",
             durable: true,
@@ -40,11 +45,9 @@ public class ProductPriceRequester : IProductPriceRequester
     public async Task<BatchProductPriceResponse> RequestProductPricesAsync(BatchProductPriceRequest request)
     {
         if (_channel == null)
-            throw new InvalidOperationException("ProductPriceRequester is not initialized. Call InitializeAsync() before using.");
+            throw new InvalidOperationException("Channel in ProductPriceRequester is not initialized. Call InitializeAsync() before using.");
 
-        // Task to await reply
         var tcs = new TaskCompletionSource<BatchProductPriceResponse>();
-
         var correlationId = Guid.NewGuid().ToString();
 
         // Declare a temporary, exclusive reply queue
@@ -64,30 +67,48 @@ public class ProductPriceRequester : IProductPriceRequester
 
             if (responseCorrelationId == correlationId)
             {
-                var json = Encoding.UTF8.GetString(body);
-                var response = JsonSerializer.Deserialize<BatchProductPriceResponse>(json);
-                tcs.SetResult(response!);
+                var receivedSignature = ea.BasicProperties?.Headers != null &&
+                                        ea.BasicProperties.Headers.TryGetValue("X-Signature", out var headerValue)
+                                            ? Encoding.UTF8.GetString((byte[])headerValue)
+                                            : null;
+
+                if (string.IsNullOrEmpty(receivedSignature) ||
+                    !HmacHelper.ValidateHmac(body, receivedSignature, _secretKey))
+                {
+                    tcs.SetException(new InvalidOperationException("Invalid HMAC signature on response. Possible tampering detected!"));
+                }
+                else
+                {
+                    var json = Encoding.UTF8.GetString(body);
+                    var response = JsonSerializer.Deserialize<BatchProductPriceResponse>(json);
+                    tcs.SetResult(response!);
+                }
             }
 
             await Task.Yield();
         };
 
-        // Start consuming the reply queue
         await _channel.BasicConsumeAsync(
             consumer: consumer,
             queue: replyQueue.QueueName,
             autoAck: true
         );
 
+        var messageBody = JsonSerializer.SerializeToUtf8Bytes(request);
+
+        // Generate HMAC signature for the outgoing message
+        var signature = HmacHelper.GenerateHmac(messageBody, _secretKey);
+
         var props = new BasicProperties
         {
             CorrelationId = correlationId,
             ReplyTo = replyQueue.QueueName,
+            Headers = new Dictionary<string, object>
+            {
+                { "X-Signature", signature }
+            }
         };
 
-        var messageBody = JsonSerializer.SerializeToUtf8Bytes(request);
-
-        // Publish to product.price.request queue
         await _channel.BasicPublishAsync(
             exchange: string.Empty,
             routingKey: "product.price.request",
@@ -96,7 +117,7 @@ public class ProductPriceRequester : IProductPriceRequester
             body: messageBody
         );
 
-        // Timeout logic: fail if no reply after 60 seconds
+        // Timeout logic
         var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(60)));
 
         if (completedTask != tcs.Task)
@@ -104,6 +125,4 @@ public class ProductPriceRequester : IProductPriceRequester
 
         return await tcs.Task;
     }
-
 }
-

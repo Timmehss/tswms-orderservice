@@ -11,6 +11,7 @@ using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
 using TSWMS.OrderService.Data.Requesters;
 using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Options;
 
 #endregion
 
@@ -80,6 +81,19 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        // Sign RabbitMQ messages with HMAC.
+        var secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+
+        if (string.IsNullOrEmpty(secretKey))
+        {
+            throw new InvalidOperationException("HMAC secret key is missing!");
+        }
+
+        builder.Services.Configure<HmacOptions>(options =>
+        {
+            options.SecretKey = secretKey;
+        });
 
         var app = builder.Build();
 
