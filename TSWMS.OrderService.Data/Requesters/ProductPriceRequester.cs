@@ -118,7 +118,7 @@ public class ProductPriceRequester : IProductPriceRequester
         );
 
         // Timeout logic
-        var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(60)));
+        var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(15)));
 
         if (completedTask != tcs.Task)
             throw new TimeoutException("Timed out waiting for product price response from ProductService.");
