@@ -34,6 +34,9 @@ RUN dotnet publish "TSWMS.OrderService.Api.csproj" -c $BUILD_CONFIGURATION -o /a
 EXPOSE 8080
 EXPOSE 8081
 
+# Set the HMAC secret during build
+ENV HMAC_SECRET_KEY qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm
+
 # Final stage - run the application
 FROM base AS final
 WORKDIR /app
