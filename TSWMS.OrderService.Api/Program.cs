@@ -82,7 +82,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        if (environment == "Test")
+        if (environment == "Test" || environment == "Docker")
         {
             Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm");
         }
