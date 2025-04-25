@@ -30,7 +30,7 @@ public class ExceptionHandlingMiddleware
             {
                 FriendlyMessage = _env.IsDevelopment() || _env.IsStaging()
                     ? ex.Message
-                    : "An unexpected error occurred. Please contact support.",
+                    : "An unexpected error occurred.",
                 StackTrace = !_env.IsProduction() ? ex.StackTrace : null
             };
 

@@ -82,18 +82,25 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // Sign RabbitMQ messages with HMAC.
-        var secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
-
-        if (string.IsNullOrEmpty(secretKey))
+        if (environment == "Test")
         {
-            throw new InvalidOperationException("HMAC secret key is missing!");
+            Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm");
         }
-
-        builder.Services.Configure<HmacOptions>(options =>
+        else
         {
-            options.SecretKey = secretKey;
-        });
+            // Sign RabbitMQ messages with HMAC.
+            var secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("HMAC secret key is missing!");
+            }
+
+            builder.Services.Configure<HmacOptions>(options =>
+            {
+                options.SecretKey = secretKey;
+            });
+        }
 
         var app = builder.Build();
 
