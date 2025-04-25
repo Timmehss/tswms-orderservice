@@ -23,3 +23,9 @@ This document provides essential commands for managing the Docker setup of the O
 ```bash
 docker-compose -p tswms-orderservice-stack up --build
 ```
+
+### 2. Docker Compose for docker-compose.prod.yml (All services).
+
+```bash
+docker-compose -f docker-compose.prod.yml -p tswms up --pull always --detach
+```
