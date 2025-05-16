@@ -9,8 +9,7 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
-using TSWMS.OrderService.Data.Requesters;
-using TSWMS.OrderService.Shared.Interfaces;
+//using TSWMS.OrderService.Data.Requesters;
 using TSWMS.OrderService.Shared.Options;
 
 #endregion
@@ -69,8 +68,8 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
         // Register RabbitMQ Publisher/Requester
-        builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
-        builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
+        //builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
+        //builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
 
         // Additional service registrations
         builder.Services.AddControllers()
