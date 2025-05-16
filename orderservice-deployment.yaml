@@ -30,3 +30,10 @@ spec:
           value: "guest"
         - name: ConnectionStrings__OrderServiceDatabase
           value: "Server=db-order;Database=OrderServiceDb;User Id=sa;Password=TimTest123;Encrypt=False;"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
