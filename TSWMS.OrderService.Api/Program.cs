@@ -134,7 +134,7 @@ public class Program
         //}
 
         // Apply Database Migrations if it's not in "Test" environment
-        if (environment != "Test")
+        if (environment != "Test" || environment == "Docker")
         {
             using (var scope = app.Services.CreateScope())
             {
