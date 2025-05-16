@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: orderservice
+  template:
+    metadata:
+      labels:
+        app: orderservice
+    spec:
+      containers:
+      - name: orderservice
+        image: orderservice:local
+        ports:
+        - containerPort: 3200
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Docker"
+        - name: ASPNETCORE_URLS
+          value: "http://+:3200"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASS
+          value: "guest"
+        - name: ConnectionStrings__OrderServiceDatabase
+          value: "Server=db-order;Database=OrderServiceDb;User Id=sa;Password=TimTest123;Encrypt=False;"

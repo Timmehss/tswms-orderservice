@@ -114,23 +114,24 @@ public class Program
         var app = builder.Build();
 
         // Initialize RabbitMQ Publisher/Requester within async context
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
-            var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
+        // Temporarily disable rabbitmq for kubernetes testing
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //    var services = scope.ServiceProvider;
+        //    var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
+        //    var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
 
-            try
-            {
-                await productPriceRequester.InitializeAsync();
-                await updateStockRequester.InitializeAsync();
-            }
-            catch (Exception ex)
-            {
-                // Log the error if RabbitMQ initialization fails
-                app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
-            }
-        }
+        //    try
+        //    {
+        //        await productPriceRequester.InitializeAsync();
+        //        await updateStockRequester.InitializeAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the error if RabbitMQ initialization fails
+        //        app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
+        //    }
+        //}
 
         // Apply Database Migrations if it's not in "Test" environment
         if (environment != "Test")
