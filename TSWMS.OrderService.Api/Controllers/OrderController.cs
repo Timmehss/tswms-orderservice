@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Models;
 
 #endregion
 
@@ -42,22 +43,22 @@ public class OrderController : ControllerBase
         }
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
-    //{
-    //    try
-    //    {
-    //        var order = _mapper.Map<Order>(orderDto);
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
+    {
+        try
+        {
+            var order = _mapper.Map<Order>(orderDto);
 
-    //        await _orderManager.CreateOrderAsync(order);
+            await _orderManager.CreateOrderAsync(order);
 
-    //        return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex);
-    //        throw;
-    //    }
-    //}
+            return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
 
 }
