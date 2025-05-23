@@ -155,7 +155,7 @@ public class Program
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         // Swagger setup for development or Docker
-        if (app.Environment.IsDevelopment() || environment == "Docker")
+        if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production")
         {
             app.UseSwagger();
             app.UseSwaggerUI();
