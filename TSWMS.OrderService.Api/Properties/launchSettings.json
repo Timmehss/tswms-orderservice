@@ -5,7 +5,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Production",
         "HMAC_SECRET_KEY": "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm"
       },
       "dotnetRunMessages": true,
@@ -24,11 +24,11 @@
     "docker": {
       "commandName": "Project",
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:3200",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Docker",
         "ASPNETCORE_URLS": "http://+:3200"
-      }
+      },
+      "applicationUrl": "http://localhost:3200"
     },
     "IIS Express": {
       "commandName": "IISExpress",

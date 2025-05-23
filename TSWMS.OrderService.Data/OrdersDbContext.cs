@@ -35,14 +35,14 @@ public class OrdersDbContext : DbContext
             {
                 OrderId = Guid.Parse("a3c99b75-b0a5-4a3b-9c8c-34eed285f269"),
                 UserId = Guid.Parse("52348777-7a0e-4139-9489-87dff9d47b7e"),
-                TotalPrice = 160.00m,
+                TotalPrice = 210.00m,
                 OrderDate = new DateTime(2024, 7, 15)
             },
             new Order
             {
                 OrderId = Guid.Parse("fd92009e-9c89-45f8-9ac6-29edeeefce61"),
                 UserId = Guid.Parse("7ee4caea-21e9-4261-947d-8305df18ff45"),
-                TotalPrice = 125.00m,
+                TotalPrice = 335.00m,
                 OrderDate = new DateTime(2024, 7, 16)
             },
             new Order
