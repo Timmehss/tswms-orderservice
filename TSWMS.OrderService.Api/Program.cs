@@ -87,7 +87,7 @@ public class Program
 
         string? secretKey;
 
-        if (environment == "Test" || environment == "Docker" || environment == "Production")
+        if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development")
         {
             // Set the key only if it's not already set
             secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
