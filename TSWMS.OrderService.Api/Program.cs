@@ -9,12 +9,9 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
-using TSWMS.OrderService.Data.Requesters;
-using TSWMS.OrderService.Shared.Interfaces;
 
 
 //using TSWMS.OrderService.Data.Requesters;
-using TSWMS.OrderService.Shared.Options;
 
 #endregion
 
@@ -72,8 +69,8 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
         // Register RabbitMQ Publisher/Requester
-        builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
-        builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
+        //builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
+        //builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
 
         // Additional service registrations
         builder.Services.AddControllers()
@@ -85,55 +82,55 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        string? secretKey;
+        //string? secretKey;
 
-        if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development")
-        {
-            // Set the key only if it's not already set
-            secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+        //if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development")
+        //{
+        //    // Set the key only if it's not already set
+        //    secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
 
-            if (string.IsNullOrEmpty(secretKey))
-            {
-                secretKey = "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm";
-                Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", secretKey);
-            }
-        }
-        else
-        {
-            // Sign RabbitMQ messages with HMAC.
-            secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
-        }
+        //    if (string.IsNullOrEmpty(secretKey))
+        //    {
+        //        secretKey = "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm";
+        //        Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", secretKey);
+        //    }
+        //}
+        //else
+        //{
+        //    // Sign RabbitMQ messages with HMAC.
+        //    secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+        //}
 
-        if (string.IsNullOrEmpty(secretKey))
-        {
-            throw new InvalidOperationException("HMAC secret key is missing!");
-        }
+        //if (string.IsNullOrEmpty(secretKey))
+        //{
+        //    throw new InvalidOperationException("HMAC secret key is missing!");
+        //}
 
-        builder.Services.Configure<HmacOptions>(options =>
-        {
-            options.SecretKey = secretKey!;
-        });
+        //builder.Services.Configure<HmacOptions>(options =>
+        //{
+        //    options.SecretKey = secretKey!;
+        //});
 
         var app = builder.Build();
 
         // Initialize RabbitMQ Publisher/Requester within async context
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
-            var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //    var services = scope.ServiceProvider;
+        //    var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
+        //    var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
 
-            try
-            {
-                await productPriceRequester.InitializeAsync();
-                await updateStockRequester.InitializeAsync();
-            }
-            catch (Exception ex)
-            {
-                // Log the error if RabbitMQ initialization fails
-                app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
-            }
-        }
+        //    try
+        //    {
+        //        await productPriceRequester.InitializeAsync();
+        //        await updateStockRequester.InitializeAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the error if RabbitMQ initialization fails
+        //        app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
+        //    }
+        //}
 
         // Apply Database Migrations if it's not in "Test" environment
         if (environment != "Test" || environment == "Docker" || environment == "Production")

@@ -1,9 +1,9 @@
-﻿using TSWMS.OrderService.Shared.Models.Requests;
+﻿//using TSWMS.OrderService.Shared.Models.Requests;
 
-namespace TSWMS.OrderService.Shared.Interfaces;
+//namespace TSWMS.OrderService.Shared.Interfaces;
 
-public interface IUpdateProductStockRequester
-{
-    Task InitializeAsync();
-    Task SendStockUpdateRequestAsync(IEnumerable<UpdateProductStock> stockUpdates);
-}
+//public interface IUpdateProductStockRequester
+//{
+//    Task InitializeAsync();
+//    Task SendStockUpdateRequestAsync(IEnumerable<UpdateProductStock> stockUpdates);
+//}
