@@ -164,12 +164,10 @@ public class Program
         app.UseAuthorization();
 
         // Map controllers to endpoints
-        app.UseHttpMetrics();
-
-        // Prometheus metrics endpoint
         app.MapControllers();
-        app.MapMetrics();
 
+        app.UseHttpMetrics();
+        app.MapMetrics();
 
         // Run the application
         app.Run();
