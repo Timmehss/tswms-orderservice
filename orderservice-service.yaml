@@ -7,5 +7,6 @@ spec:
   selector:
     app: orderservice
   ports:
-    - port: 80
+    - protocol: TCP
+      port: 80
       targetPort: 3200
