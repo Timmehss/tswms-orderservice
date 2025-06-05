@@ -3,6 +3,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using RabbitMQ.Client;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
@@ -164,6 +165,9 @@ public class Program
 
         // Map controllers to endpoints
         app.MapControllers();
+
+        app.UseHttpMetrics();
+        app.MapMetrics();
 
         // Run the application
         app.Run();
