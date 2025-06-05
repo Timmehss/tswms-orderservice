@@ -120,35 +120,35 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
 
-  deploy:
-    name: Deploy to AKS
-    runs-on: ubuntu-latest
-    needs: [docker]
+  # deploy:
+  #   name: Deploy to AKS
+  #   runs-on: ubuntu-latest
+  #   needs: [docker]
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
+  #     - name: Set up kubectl
+  #       uses: azure/setup-kubectl@v3
+  #       with:
+  #         version: 'latest'
 
-      - name: Set up AKS credentials
-        run: |
-          az aks get-credentials \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.AZURE_AKS_CLUSTER }} \
-            --overwrite-existing
+  #     - name: Set up AKS credentials
+  #       run: |
+  #         az aks get-credentials \
+  #           --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+  #           --name ${{ secrets.AZURE_AKS_CLUSTER }} \
+  #           --overwrite-existing
 
-      - name: Deploy Kubernetes manifests
-        run: |
-          kubectl apply -f sqlserver-deployment.yaml -n orderservice
-          kubectl apply -f sqlserver-service.yaml -n orderservice
-          kubectl apply -f orderservice-deployment.yaml -n orderservice
-          kubectl apply -f orderservice-service.yaml -n orderservice
+  #     - name: Deploy Kubernetes manifests
+  #       run: |
+  #         kubectl apply -f sqlserver-deployment.yaml -n orderservice
+  #         kubectl apply -f sqlserver-service.yaml -n orderservice
+  #         kubectl apply -f orderservice-deployment.yaml -n orderservice
+  #         kubectl apply -f orderservice-service.yaml -n orderservice
