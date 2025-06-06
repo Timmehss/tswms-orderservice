@@ -85,7 +85,7 @@ public class Program
 
         //string? secretKey;
 
-        //if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development")
+        //if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development" || environment == "Kubernetes")
         //{
         //    // Set the key only if it's not already set
         //    secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
@@ -134,7 +134,7 @@ public class Program
         //}
 
         // Apply Database Migrations if it's not in "Test" environment
-        if (environment != "Test" || environment == "Docker" || environment == "Production")
+        if (environment != "Test" || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
             using (var scope = app.Services.CreateScope())
             {
@@ -153,7 +153,7 @@ public class Program
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         // Swagger setup for development or Docker
-        if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production")
+        if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
             app.UseSwagger();
             app.UseSwaggerUI();
