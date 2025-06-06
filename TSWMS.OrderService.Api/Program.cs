@@ -26,6 +26,8 @@ public class Program
         // Get Environment
         var environment = builder.Environment.EnvironmentName;
 
+        environment = "Kubernetes";
+
         // Configure App Configuration
         builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
