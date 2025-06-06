@@ -23,7 +23,7 @@ spec:
         - containerPort: 3200
         env:
         - name: ASPNETCORE_ENVIRONMENT
-          value: "Docker"
+          value: "Kubernetes"
         - name: ASPNETCORE_URLS
           value: "http://+:3200"
         - name: RABBITMQ_HOST
