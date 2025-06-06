@@ -20,7 +20,8 @@ spec:
       - name: orderservice
         image: timspitters03/tswms-orderservice:dev-latest
         ports:
-        - containerPort: 3200
+        - name: http
+          containerPort: 3200
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Kubernetes"
