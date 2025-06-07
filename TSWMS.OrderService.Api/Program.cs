@@ -26,6 +26,8 @@ public class Program
         // Get Environment
         var environment = builder.Environment.EnvironmentName;
 
+        Console.WriteLine($"Initial environment: {environment}");
+
         // Configure App Configuration
         builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -136,6 +138,7 @@ public class Program
         // Apply Database Migrations if it's not in "Test" environment
         if (environment != "Test" || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
+            Console.WriteLine($"Database.Migrate() method | Environment: {environment}");
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -155,6 +158,8 @@ public class Program
         // Swagger setup for development or Docker
         if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
+            Console.WriteLine($"UseSwagger environment: {environment}");
+
             app.UseSwagger();
             app.UseSwaggerUI();
         }
