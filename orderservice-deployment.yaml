@@ -11,10 +11,6 @@ spec:
     metadata:
       labels:
         app: orderservice
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/metrics"
-        prometheus.io/port: "3200"
     spec:
       containers:
       - name: orderservice
