@@ -168,10 +168,13 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthorization();
 
-        // Map controllers to endpoints
+        // Collect HTTP metrics before handling requests
+        app.UseHttpMetrics();
+
+        // Map controllers
         app.MapControllers();
 
-        app.UseHttpMetrics();
+        // Expose /metrics endpoint for Prometheus
         app.MapMetrics();
 
         // Run the application
