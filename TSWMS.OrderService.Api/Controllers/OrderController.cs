@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Models;
 
 #endregion
 

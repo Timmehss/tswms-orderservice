@@ -10,6 +10,8 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
+using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Options;
 
 
 //using TSWMS.OrderService.Data.Requesters;
@@ -85,34 +87,34 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        //string? secretKey;
+        string? secretKey;
 
-        //if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development" || environment == "Kubernetes")
-        //{
-        //    // Set the key only if it's not already set
-        //    secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+        if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development" || environment == "Kubernetes")
+        {
+            // Set the key only if it's not already set
+            secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
 
-        //    if (string.IsNullOrEmpty(secretKey))
-        //    {
-        //        secretKey = "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm";
-        //        Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", secretKey);
-        //    }
-        //}
-        //else
-        //{
-        //    // Sign RabbitMQ messages with HMAC.
-        //    secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
-        //}
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                secretKey = "qWX4IlPFoIKLeSoiiT1JBAl7KvzIRwVm";
+                Environment.SetEnvironmentVariable("HMAC_SECRET_KEY", secretKey);
+            }
+        }
+        else
+        {
+            // Sign RabbitMQ messages with HMAC.
+            secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
+        }
 
-        //if (string.IsNullOrEmpty(secretKey))
-        //{
-        //    throw new InvalidOperationException("HMAC secret key is missing!");
-        //}
+        if (string.IsNullOrEmpty(secretKey))
+        {
+            throw new InvalidOperationException("HMAC secret key is missing!");
+        }
 
-        //builder.Services.Configure<HmacOptions>(options =>
-        //{
-        //    options.SecretKey = secretKey!;
-        //});
+        builder.Services.Configure<HmacOptions>(options =>
+        {
+            options.SecretKey = secretKey!;
+        });
 
         var app = builder.Build();
 
