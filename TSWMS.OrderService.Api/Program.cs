@@ -10,7 +10,6 @@ using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
-using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Options;
 
 
@@ -118,6 +117,9 @@ public class Program
 
         var app = builder.Build();
 
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Initial environment: {environment}", environment);
+
         // Initialize RabbitMQ Publisher/Requester within async context
         //using (var scope = app.Services.CreateScope())
         //{
@@ -140,7 +142,8 @@ public class Program
         // Apply Database Migrations if it's not in "Test" environment
         if (environment != "Test" || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
-            Console.WriteLine($"Database.Migrate() method | Environment: {environment}");
+            logger.LogInformation("Database.Migrate() method | Environment: {environment}", environment);
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -160,7 +163,7 @@ public class Program
         // Swagger setup for development or Docker
         if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
         {
-            Console.WriteLine($"UseSwagger environment: {environment}");
+            logger.LogInformation("UseSwagger environment: {environment}", environment);
 
             app.UseSwagger();
             app.UseSwaggerUI();
