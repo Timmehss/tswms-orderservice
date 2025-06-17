@@ -3,7 +3,8 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using Prometheus;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
@@ -115,6 +116,36 @@ public class Program
             options.SecretKey = secretKey!;
         });
 
+        //const string serviceName = "roll-dice";
+
+        //builder.Logging.AddOpenTelemetry(options =>
+        //{
+        //    options
+        //        .SetResourceBuilder(
+        //            ResourceBuilder.CreateDefault()
+        //                .AddService(serviceName))
+        //        .AddConsoleExporter()
+        //        .AddOtlpExporter();
+        //});
+        //builder.Services.AddOpenTelemetry()
+        //      .ConfigureResource(resource => resource.AddService(serviceName))
+        //      .WithTracing(tracing => tracing
+        //          .AddAspNetCoreInstrumentation()
+        //          .AddConsoleExporter()
+        //          .AddOtlpExporter())
+        //      .WithMetrics(metrics => metrics
+        //          .AddAspNetCoreInstrumentation()
+        //          .AddConsoleExporter()
+        //          .AddOtlpExporter());
+
+        builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddPrometheusExporter();
+    });
+
         var app = builder.Build();
 
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -169,18 +200,14 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
+
         // Enable HTTPS redirection and authorization
         app.UseHttpsRedirection();
         app.UseAuthorization();
 
-        // Collect HTTP metrics before handling requests
-        app.UseHttpMetrics();
-
         // Map controllers
         app.MapControllers();
-
-        // Expose /metrics endpoint for Prometheus
-        app.MapMetrics();
 
         // Run the application
         app.Run();
