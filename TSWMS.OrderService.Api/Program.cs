@@ -116,35 +116,14 @@ public class Program
             options.SecretKey = secretKey!;
         });
 
-        //const string serviceName = "roll-dice";
-
-        //builder.Logging.AddOpenTelemetry(options =>
-        //{
-        //    options
-        //        .SetResourceBuilder(
-        //            ResourceBuilder.CreateDefault()
-        //                .AddService(serviceName))
-        //        .AddConsoleExporter()
-        //        .AddOtlpExporter();
-        //});
-        //builder.Services.AddOpenTelemetry()
-        //      .ConfigureResource(resource => resource.AddService(serviceName))
-        //      .WithTracing(tracing => tracing
-        //          .AddAspNetCoreInstrumentation()
-        //          .AddConsoleExporter()
-        //          .AddOtlpExporter())
-        //      .WithMetrics(metrics => metrics
-        //          .AddAspNetCoreInstrumentation()
-        //          .AddConsoleExporter()
-        //          .AddOtlpExporter());
-
         builder.Services.AddOpenTelemetry()
-    .WithMetrics(metrics =>
-    {
-        metrics
-            .AddAspNetCoreInstrumentation()
-            .AddPrometheusExporter();
-    });
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddSqlClientInstrumentation()
+                    .AddPrometheusExporter();
+            });
 
         var app = builder.Build();
 
