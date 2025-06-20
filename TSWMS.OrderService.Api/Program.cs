@@ -184,7 +184,7 @@ public class Program
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
         // Enable HTTPS redirection and authorization
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.UseAuthorization();
 
         // Map controllers
