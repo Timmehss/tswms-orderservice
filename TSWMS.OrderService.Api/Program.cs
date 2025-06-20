@@ -28,6 +28,8 @@ public class Program
         // Get Environment
         var environment = builder.Environment.EnvironmentName;
 
+        environment = "Kubernetes"; // For testing purposes, set the environment to Kubernetes
+
         Console.WriteLine($"Initial environment: {environment}");
 
         // Configure App Configuration
