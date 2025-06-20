@@ -26,9 +26,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Get Environment
-        var environment = builder.Environment.EnvironmentName;
-
-        environment = "Kubernetes"; // For testing purposes, set the environment to Kubernetes
+        var environment = builder.Environment;
 
         Console.WriteLine($"Initial environment: {environment}");
 
@@ -54,7 +52,7 @@ public class Program
         });
 
         // Configure EntityFramework UserDbContext
-        builder.Services.ConfigureUserDbContext(builder.Configuration, environment);
+        builder.Services.ConfigureUserDbContext(builder.Configuration, environment.EnvironmentName);
 
         // Configure dependency injection for managers and repositories
         builder.Services.ConfigureManagers();
@@ -91,7 +89,7 @@ public class Program
 
         string? secretKey;
 
-        if (environment == "Test" || environment == "Docker" || environment == "Production" || environment == "Development" || environment == "Kubernetes")
+        if (environment.IsDevelopment() || environment.IsEnvironment("Test") || environment.IsEnvironment("Docker") || environment.IsEnvironment("Production") || environment.IsEnvironment("Kubernetes"))
         {
             // Set the key only if it's not already set
             secretKey = Environment.GetEnvironmentVariable("HMAC_SECRET_KEY");
@@ -130,7 +128,8 @@ public class Program
         var app = builder.Build();
 
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("Initial environment: {environment}", environment);
+
+        logger.LogInformation("Current environment: {env}", environment.EnvironmentName);
 
         // Initialize RabbitMQ Publisher/Requester within async context
         //using (var scope = app.Services.CreateScope())
@@ -152,7 +151,7 @@ public class Program
         //}
 
         // Apply Database Migrations if it's not in "Test" environment
-        if (environment != "Test" || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
+        if (environment.IsEnvironment("Docker") || environment.IsEnvironment("Production") || environment.IsEnvironment("Kubernetes"))
         {
             logger.LogInformation("Database.Migrate() method | Environment: {environment}", environment);
 
@@ -172,13 +171,17 @@ public class Program
         // Exception handling middleware
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-        // Swagger setup for development or Docker
-        if (app.Environment.IsDevelopment() || environment == "Docker" || environment == "Production" || environment == "Kubernetes")
+        // Swagger setup
+        if (environment.IsDevelopment() || environment.IsEnvironment("Docker") || environment.IsEnvironment("Production") || environment.IsEnvironment("Kubernetes"))
         {
-            logger.LogInformation("UseSwagger environment: {environment}", environment);
+            logger.LogInformation("UseSwagger triggered for environment: {env}", environment.EnvironmentName);
 
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "OrderService API V1");
+                c.RoutePrefix = "swagger"; // Explicitly set route prefix
+            });
         }
 
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
