@@ -118,7 +118,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:dev-latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tswms-orderservice:latest
 
   # deploy:
   #   name: Deploy to AKS

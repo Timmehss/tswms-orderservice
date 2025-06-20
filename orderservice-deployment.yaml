@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: orderservice
-        image: timspitters03/tswms-orderservice:dev-latest
+        image: timspitters03/tswms-orderservice:latest
+        imagePullPolicy: Always
         ports:
         - name: http
           containerPort: 3200
