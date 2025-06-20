@@ -177,11 +177,7 @@ public class Program
             logger.LogInformation("UseSwagger triggered for environment: {env}", environment.EnvironmentName);
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "OrderService API V1");
-                c.RoutePrefix = "swagger"; // Explicitly set route prefix
-            });
+            app.UseSwaggerUI();
         }
 
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
