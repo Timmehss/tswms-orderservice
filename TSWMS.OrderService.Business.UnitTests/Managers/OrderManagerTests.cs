@@ -26,7 +26,7 @@ public class OrderManagerTests
         _updateProductStockRequester = new Mock<IUpdateProductStockRequester>();
 
         // Initialize OrderManager with the mocked repository and mocked publisher
-        _orderManager = new OrderManager(_orderRepositoryMock.Object);
+        //_orderManager = new OrderManager(_orderRepositoryMock.Object);
 
         //, _productPriceRequester.Object, _updateProductStockRequester.Object
     }

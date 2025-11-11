@@ -19,8 +19,10 @@ public class OrderManager : IOrderManager
     private readonly string _pubSubName;
     private readonly string _orderCreatedTopic;
 
-    public OrderManager(IOrderRepository orderRepository, IProductClient productClient, IConfiguration config)
+    public OrderManager(DaprClient daprClient, IOrderRepository orderRepository, IProductClient productClient, IConfiguration config)
     {
+        _daprClient = daprClient;
+
         _orderRepository = orderRepository;
         _productClient = productClient;
 

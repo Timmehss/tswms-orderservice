@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapr.Client" Version="1.16.1" />
+    <PackageReference Include="FluentResults" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TSWMS.OrderService.Shared\TSWMS.OrderService.Shared.csproj" />
   </ItemGroup>
 

@@ -5,12 +5,15 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using RabbitMQ.Client;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
+using TSWMS.OrderService.Business.Managers;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
+using TSWMS.OrderService.Data.Clients;
+using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Interfaces.Clients;
 using TSWMS.OrderService.Shared.Options;
 
 #endregion
@@ -35,8 +38,7 @@ public class Program
 
         // Configure Dapr Services & Endpoints
         builder.Configuration.AddJsonFile("dapr.services.json", optional: false, reloadOnChange: true);
-        builder.Configuration.AddJsonFile("dapr.components.json", optional: false, reloadOnChange: true);
-        builder.Configuration.AddJsonFile("dapr.topics.json", optional: false, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("dapr.config.json", optional: false, reloadOnChange: true);
 
         // Add Dapr
         builder.Services.AddDaprClient();
@@ -63,27 +65,13 @@ public class Program
         builder.Services.ConfigureManagers();
         builder.Services.ConfigureRepositories();
 
-        builder.Services.AddSingleton<IConnectionFactory>(_ =>
-        {
-            var factory = new ConnectionFactory
-            {
-                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest",
-                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest"
-            };
-            return factory;
-        });
-
         // Configure FluentValidation
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
 
-        // Register RabbitMQ Publisher/Requester
-        //builder.Services.AddSingleton<IProductPriceRequester, ProductPriceRequester>();
-        //builder.Services.AddSingleton<IUpdateProductStockRequester, UpdateProductStockRequester>();
-
         // Additional service registrations
         builder.Services.AddControllers()
+            .AddDapr()
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -91,6 +79,10 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddScoped<IOrderManager, OrderManager>();
+
+        builder.Services.AddScoped<IProductClient, ProductClient>();
 
         string? secretKey;
 
@@ -136,25 +128,6 @@ public class Program
 
         logger.LogInformation("Current environment: {env}", environment.EnvironmentName);
 
-        // Initialize RabbitMQ Publisher/Requester within async context
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var services = scope.ServiceProvider;
-        //    var productPriceRequester = services.GetRequiredService<IProductPriceRequester>();
-        //    var updateStockRequester = services.GetRequiredService<IUpdateProductStockRequester>();
-
-        //    try
-        //    {
-        //        await productPriceRequester.InitializeAsync();
-        //        await updateStockRequester.InitializeAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the error if RabbitMQ initialization fails
-        //        app.Logger.LogError(ex, "Error occurred while initializing RabbitMQ.");
-        //    }
-        //}
-
         // Apply Database Migrations if it's not in "Test" environment
         if (environment.IsEnvironment("Docker") || environment.IsEnvironment("Production") || environment.IsEnvironment("Kubernetes"))
         {
@@ -187,12 +160,15 @@ public class Program
 
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
-        // Enable HTTPS redirection and authorization
-        //app.UseHttpsRedirection();
         app.UseAuthorization();
+
+        app.UseCloudEvents();
 
         // Map controllers
         app.MapControllers();
+
+        // Add Dapr subscribe handler
+        app.MapSubscribeHandler();
 
         // Run the application
         app.Run();
