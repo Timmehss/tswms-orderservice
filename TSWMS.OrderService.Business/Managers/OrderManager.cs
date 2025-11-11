@@ -1,8 +1,7 @@
-﻿using Dapr.Client;
-using FluentResults;
-using Microsoft.Extensions.Configuration;
+﻿using FluentResults;
 using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Interfaces.Clients;
+using TSWMS.OrderService.Shared.Interfaces.Publishers;
 using TSWMS.OrderService.Shared.Models;
 using TSWMS.OrderService.Shared.Models.DTOs;
 using TSWMS.OrderService.Shared.Models.Events;
@@ -11,23 +10,15 @@ namespace TSWMS.OrderService.Business.Managers;
 
 public class OrderManager : IOrderManager
 {
+    private readonly IEventPublisher _eventPublisher;
     private readonly IOrderRepository _orderRepository;
     private readonly IProductClient _productClient;
 
-    private readonly DaprClient _daprClient;
-
-    private readonly string _pubSubName;
-    private readonly string _orderCreatedTopic;
-
-    public OrderManager(DaprClient daprClient, IOrderRepository orderRepository, IProductClient productClient, IConfiguration config)
+    public OrderManager(IEventPublisher eventPublisher, IOrderRepository orderRepository, IProductClient productClient)
     {
-        _daprClient = daprClient;
-
+        _eventPublisher = eventPublisher;
         _orderRepository = orderRepository;
         _productClient = productClient;
-
-        _pubSubName = config["Dapr:ComponentNames:PubSub"] ?? "";
-        _orderCreatedTopic = config["Dapr:Topics:Orders:OrderCreated"] ?? "";
     }
 
     public async Task<IEnumerable<Order>> GetOrdersAsync()
@@ -91,7 +82,7 @@ public class OrderManager : IOrderManager
                 .ToList()
         };
 
-        await _daprClient.PublishEventAsync(_pubSubName, _orderCreatedTopic, orderCreatedEvent);
+        await _eventPublisher.PublishAsync(orderCreatedEvent);
 
         return createdOrder;
     }

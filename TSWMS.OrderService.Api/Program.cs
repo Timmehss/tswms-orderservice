@@ -12,8 +12,10 @@ using TSWMS.OrderService.Business.Managers;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
 using TSWMS.OrderService.Data.Clients;
+using TSWMS.OrderService.Data.Publishers;
 using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Interfaces.Clients;
+using TSWMS.OrderService.Shared.Interfaces.Publishers;
 using TSWMS.OrderService.Shared.Options;
 
 #endregion
@@ -81,8 +83,8 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddScoped<IOrderManager, OrderManager>();
-
         builder.Services.AddScoped<IProductClient, ProductClient>();
+        builder.Services.AddScoped<IEventPublisher, DaprEventPublisher>();
 
         string? secretKey;
 

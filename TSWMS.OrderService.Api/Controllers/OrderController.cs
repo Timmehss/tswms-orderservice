@@ -26,21 +26,14 @@ public class OrderController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        try
-        {
-            var orders = await _orderManager.GetOrdersAsync();
+        var orders = await _orderManager.GetOrdersAsync();
 
-            if (orders == null || !orders.Any())
-            {
-                return NotFound("No orders found.");
-            }
-
-            return Ok(_mapper.Map<List<OrderDto>>(orders));
-        }
-        catch (Exception ex)
+        if (orders == null || !orders.Any())
         {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
+            return NotFound("No orders found.");
         }
+
+        return Ok(_mapper.Map<List<OrderDto>>(orders));
     }
 
     [HttpPost]
