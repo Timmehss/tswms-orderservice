@@ -1,20 +1,31 @@
-﻿using TSWMS.OrderService.Shared.Interfaces;
+﻿using Dapr.Client;
+using FluentResults;
+using Microsoft.Extensions.Configuration;
+using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Interfaces.Clients;
 using TSWMS.OrderService.Shared.Models;
+using TSWMS.OrderService.Shared.Models.DTOs;
+using TSWMS.OrderService.Shared.Models.Events;
 
 namespace TSWMS.OrderService.Business.Managers;
 
 public class OrderManager : IOrderManager
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IProductPriceRequester _productPriceRequester;
-    private readonly IUpdateProductStockRequester _updateStockRequester;
+    private readonly IProductClient _productClient;
 
-    //, IProductPriceRequester productPriceRequester, IUpdateProductStockRequester updateStockRequester
-    public OrderManager(IOrderRepository orderRepository)
+    private readonly DaprClient _daprClient;
+
+    private readonly string _pubSubName;
+    private readonly string _orderCreatedTopic;
+
+    public OrderManager(IOrderRepository orderRepository, IProductClient productClient, IConfiguration config)
     {
         _orderRepository = orderRepository;
-        //_productPriceRequester = productPriceRequester;
-        //_updateStockRequester = updateStockRequester;
+        _productClient = productClient;
+
+        _pubSubName = config["Dapr:ComponentNames:PubSub"] ?? "";
+        _orderCreatedTopic = config["Dapr:Topics:Orders:OrderCreated"] ?? "";
     }
 
     public async Task<IEnumerable<Order>> GetOrdersAsync()
@@ -22,48 +33,65 @@ public class OrderManager : IOrderManager
         return await _orderRepository.GetOrders();
     }
 
-    //public async Task<Order> CreateOrderAsync(Order order)
-    //{
-    //    if (order == null || !order.OrderItems.Any())
-    //        throw new ArgumentException("Order must have at least one item.");
+    public async Task<Result<Order>> CreateOrderAsync(Order order)
+    {
+        if (order == null || !order.OrderItems.Any())
+        {
+            return Result.Fail("Order must have at least one item.");
+        }
 
-    //    var productIds = order.OrderItems
-    //        .Select(item => item.ProductId)
-    //        .Distinct()
-    //        .ToList();
+        var productIds = order.OrderItems
+            .Select(item => item.ProductId)
+            .Distinct()
+            .ToList();
 
-    //    var request = new BatchProductPriceRequest { ProductIds = productIds };
-    //    var response = await _productPriceRequester.RequestProductPricesAsync(request);
+        // Fetch product prices via Dapr direct service invocation
+        var productPrices = await _productClient.GetProductPricesAsync(productIds);
+        if (productPrices == null || !productPrices.Any())
+        {
+            return Result.Fail("Failed to retrieve product prices.");
+        }
 
-    //    foreach (var item in order.OrderItems)
-    //    {
-    //        var product = response.ProductPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
-    //        if (product == null)
-    //            throw new InvalidOperationException($"No price found for product {item.ProductId}");
+        // Assign prices to the products in the order and calculate total
+        foreach (var item in order.OrderItems)
+        {
+            var product = productPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
+            if (product == null)
+            {
+                return Result.Fail($"No price found for product {item.ProductId}");
+            }
 
-    //        item.UnitPrice = product.UnitPrice;
-    //        order.TotalPrice += product.UnitPrice * item.Quantity;
-    //    }
+            item.UnitPrice = product.UnitPrice;
+            order.TotalPrice += product.UnitPrice * item.Quantity;
+        }
 
-    //    order.OrderDate = DateTime.UtcNow;
+        // Set the order date
+        order.OrderDate = DateTime.UtcNow;
 
-    //    var createdOrder = await _orderRepository.CreateOrder(order);
+        // Create the order
+        var createdOrder = await _orderRepository.CreateOrder(order);
 
-    //    if (createdOrder == null)
-    //    {
-    //        throw new InvalidOperationException($"There was an error creating the order!");
-    //    }
+        // Check if the order creation was successful
+        if (createdOrder == null)
+        {
+            return Result.Fail("Error creating the order.");
+        }
 
-    //    // Request stock update on ordered products
-    //    var stockUpdates = order.OrderItems.Select(item => new UpdateProductStock
-    //    {
-    //        ProductId = item.ProductId,
-    //        QuantityOrdered = item.Quantity
-    //    }).ToList();
+        var orderCreatedEvent = new OrderCreatedEvent
+        {
+            OrderId = createdOrder.OrderId,
+            OrderItems = createdOrder.OrderItems
+                .Select(orderItem => new OrderItemEventDto
+                {
+                    ProductId = orderItem.ProductId,
+                    Quantity = orderItem.Quantity
+                })
+                .ToList()
+        };
 
-    //    await _updateStockRequester.SendStockUpdateRequestAsync(stockUpdates);
+        await _daprClient.PublishEventAsync(_pubSubName, _orderCreatedTopic, orderCreatedEvent);
 
-    //    return createdOrder;
-    //}
+        return createdOrder;
+    }
 
 }

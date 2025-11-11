@@ -13,9 +13,6 @@ using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
 using TSWMS.OrderService.Shared.Options;
 
-
-//using TSWMS.OrderService.Data.Requesters;
-
 #endregion
 
 namespace TSWMS.OrderService.Api;
@@ -35,6 +32,14 @@ public class Program
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+
+        // Configure Dapr Services & Endpoints
+        builder.Configuration.AddJsonFile("dapr.services.json", optional: false, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("dapr.components.json", optional: false, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("dapr.topics.json", optional: false, reloadOnChange: true);
+
+        // Add Dapr
+        builder.Services.AddDaprClient();
 
         // Add Cors Policy
         builder.Services.AddCors(o => o.AddPolicy("TSWMSPolicy", builder =>

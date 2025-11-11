@@ -29,3 +29,8 @@ docker-compose -p tswms-orderservice-stack up --build
 ```bash
 docker-compose -f docker-compose.prod.yml -p tswms up --pull always --detach
 ```
+
+### Run Dapr Sidecar
+```bash
+dapr run --app-id orderservice --app-port 3200 --components-path ./dapr/components -- dotnet watch run --project ./TSWMS.OrderService.Api/TSWMS.OrderService.Api.csproj
+```

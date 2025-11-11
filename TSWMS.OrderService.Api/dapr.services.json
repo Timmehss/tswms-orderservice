@@ -1,0 +1,8 @@
+{
+  "ProductService": {
+    "AppId": "productservice",
+    "Endpoints": {
+      "GetProductPrices": "api/products/prices"
+    }
+  }
+}

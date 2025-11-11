@@ -1,0 +1,15 @@
+{
+  "Dapr": {
+    "ComponentNames": {
+      "PubSub": "pubsub"
+    },
+    "Topics": {
+      "Orders": {
+        "OrderCreated": "order.created"
+      },
+      "Products": {
+        "StockUpdated": "stock.updated"
+      }
+    }
+  }
+}
