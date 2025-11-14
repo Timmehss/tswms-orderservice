@@ -8,6 +8,7 @@ using OpenTelemetry.Trace;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
+using TSWMS.OrderService.Business;
 using TSWMS.OrderService.Business.Managers;
 using TSWMS.OrderService.Configurations;
 using TSWMS.OrderService.Data;
@@ -85,6 +86,10 @@ public class Program
         builder.Services.AddScoped<IOrderManager, OrderManager>();
         builder.Services.AddScoped<IProductClient, ProductClient>();
         builder.Services.AddScoped<IEventPublisher, DaprEventPublisher>();
+
+        builder.Services.AddScoped<IStateStore, RedisStateStore>();
+        builder.Services.AddScoped<IProductCache, ProductCache>();
+        builder.Services.AddScoped<IProductService, ProductService>();
 
         string? secretKey;
 

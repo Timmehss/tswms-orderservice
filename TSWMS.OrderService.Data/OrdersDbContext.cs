@@ -18,6 +18,11 @@ public class OrdersDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure decimal precision for TotalPrice
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalPrice)
+            .HasPrecision(18, 2);
+
         modelBuilder.Entity<OrderItem>()
             .HasKey(orderItem => new { orderItem.OrderId, orderItem.ProductId });
 

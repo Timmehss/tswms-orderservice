@@ -3,6 +3,7 @@
     "ComponentNames": {
       "PubSub": "pubsub"
     },
+    "OrderServiceStateStoreName": "orderservice-statestore",
     "Topics": {
       "Orders": {
         "OrderCreated": "order.created"

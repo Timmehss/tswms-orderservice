@@ -13,12 +13,19 @@ public class OrderManager : IOrderManager
     private readonly IEventPublisher _eventPublisher;
     private readonly IOrderRepository _orderRepository;
     private readonly IProductClient _productClient;
+    private readonly IProductService _productService;
 
-    public OrderManager(IEventPublisher eventPublisher, IOrderRepository orderRepository, IProductClient productClient)
+    public OrderManager(
+        IEventPublisher eventPublisher,
+        IOrderRepository orderRepository,
+        IProductClient productClient,
+        IProductService productService
+        )
     {
         _eventPublisher = eventPublisher;
         _orderRepository = orderRepository;
         _productClient = productClient;
+        _productService = productService;
     }
 
     public async Task<IEnumerable<Order>> GetOrdersAsync()
@@ -38,8 +45,8 @@ public class OrderManager : IOrderManager
             .Distinct()
             .ToList();
 
-        // Fetch product prices via Dapr direct service invocation
-        var productPrices = await _productClient.GetProductPricesAsync(productIds);
+        // Fetch product prices via state store cache or Dapr direct service invocation
+        var productPrices = await _productService.GetProductPricesAsync(productIds);
         if (productPrices == null || !productPrices.Any())
         {
             return Result.Fail("Failed to retrieve product prices.");
@@ -48,14 +55,14 @@ public class OrderManager : IOrderManager
         // Assign prices to the products in the order and calculate total
         foreach (var item in order.OrderItems)
         {
-            var product = productPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
-            if (product == null)
+            var price = productPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
+            if (price == null)
             {
-                return Result.Fail($"No price found for product {item.ProductId}");
+                return Result.Fail($"Error calculating order total, price is missing for product {item.ProductId}");
             }
 
-            item.UnitPrice = product.UnitPrice;
-            order.TotalPrice += product.UnitPrice * item.Quantity;
+            item.UnitPrice = price.UnitPrice;
+            order.TotalPrice += item.UnitPrice * item.Quantity;
         }
 
         // Set the order date
