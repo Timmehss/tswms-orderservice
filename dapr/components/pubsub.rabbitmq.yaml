@@ -16,5 +16,3 @@ spec:
       value: "0"
     - name: deleteWhenUnused
       value: "false"
-scopes:
-  - orderservice

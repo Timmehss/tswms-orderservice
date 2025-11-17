@@ -9,7 +9,7 @@
         "OrderCreated": "order.created"
       },
       "Products": {
-        "StockUpdated": "stock.updated"
+        "ProductUpdated": "product.updated"
       }
     }
   }

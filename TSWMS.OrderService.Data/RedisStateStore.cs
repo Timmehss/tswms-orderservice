@@ -66,6 +66,7 @@ public class RedisStateStore : IStateStore
     public async Task DeleteAsync(string key)
     {
         await _dapr.DeleteStateAsync(_storeName, key);
+        Console.WriteLine($"[RedisStateStore] Key {key} deleted successfully.");
     }
 
 }

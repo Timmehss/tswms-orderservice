@@ -86,6 +86,7 @@ public class Program
         builder.Services.AddScoped<IOrderManager, OrderManager>();
         builder.Services.AddScoped<IProductClient, ProductClient>();
         builder.Services.AddScoped<IEventPublisher, DaprEventPublisher>();
+        builder.Services.AddScoped<IProductEventHandler, ProductEventHandler>();
 
         builder.Services.AddScoped<IStateStore, RedisStateStore>();
         builder.Services.AddScoped<IProductCache, ProductCache>();
