@@ -52,6 +52,7 @@ public class ProductService : IProductService
         // Return merged results
         var total = cachedProductPriceDtos.Count + fetchedDtos.Count;
         Console.WriteLine($"[ProductService] Returning total {total} product prices.");
+
         return cachedProductPriceDtos.Concat(fetchedDtos).ToList();
     }
 

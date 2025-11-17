@@ -21,7 +21,7 @@ public class ProductCache : IProductCache
         Console.WriteLine($"[ProductCache] Getting cached prices for keys: {string.Join(", ", keys)}");
 
         // State store returns Dictionary<string, T?> where T is decimal
-        var stateItems = await _stateStore.GetBulkAsync<decimal>(keys);
+        var stateItems = await _stateStore.GetBulkAsync<decimal?>(keys);
         Console.WriteLine($"[ProductCache] Retrieved {stateItems.Count} items from state store.");
 
         var results = new List<ProductPriceDto>();
@@ -33,7 +33,7 @@ public class ProductCache : IProductCache
             var value = kvp.Value;
 
             // Treat null or default(decimal) as missing
-            if (value == null || value.Equals(default(decimal)))
+            if (value == null)
             {
                 Console.WriteLine($"[ProductCache] Cache miss for product {id}");
                 missingIds.Add(id);
@@ -44,7 +44,7 @@ public class ProductCache : IProductCache
             results.Add(new ProductPriceDto
             {
                 ProductId = id,
-                UnitPrice = value
+                UnitPrice = value.Value
             });
 
             Console.WriteLine($"[ProductCache] Cache hit: Product {id} => {value}");
