@@ -34,4 +34,15 @@ public class DaprEventPublisher : IEventPublisher
         await _daprClient.PublishEventAsync(_pubSubName, topicName, @event);
     }
 
+    //public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : class
+    //{
+    //    var type = typeof(TEvent);
+    //    if (!_eventTopics.TryGetValue(type, out var topicName))
+    //    {
+    //        throw new InvalidOperationException($"No topic configured for event {type.Name}");
+    //    }
+
+    //    await _daprClient.PublishEventAsync(_pubSubName, topicName, @event);
+    //}
+
 }

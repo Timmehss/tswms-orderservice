@@ -1,5 +1,6 @@
 #region Usings
 
+using Dapr.Workflow;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,8 @@ using OpenTelemetry.Trace;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
+using TSWMS.OrderService.Api.Workflows;
+using TSWMS.OrderService.Api.Workflows.Activities;
 using TSWMS.OrderService.Business;
 using TSWMS.OrderService.Business.Managers;
 using TSWMS.OrderService.Configurations;
@@ -42,6 +45,13 @@ public class Program
         // Configure Dapr Services & Endpoints
         builder.Configuration.AddJsonFile("dapr.services.json", optional: false, reloadOnChange: true);
         builder.Configuration.AddJsonFile("dapr.config.json", optional: false, reloadOnChange: true);
+
+        builder.Services.AddDaprWorkflow(options =>
+        {
+            options.RegisterWorkflow<CreateOrderWorkflow>();
+            options.RegisterActivity<GetProductPricesActivity>();
+            options.RegisterActivity<CreateOrderActivity>();
+        });
 
         // Add Dapr
         builder.Services.AddDaprClient();
