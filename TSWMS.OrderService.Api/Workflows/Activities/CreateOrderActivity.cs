@@ -21,17 +21,21 @@ public class CreateOrderActivity : WorkflowActivity<CreateOrderDto, OrderDto>
         WorkflowActivityContext context,
         CreateOrderDto createOrderDto)
     {
-        // Map DTO -> domain
         var order = _mapper.Map<Order>(createOrderDto);
 
-        // Call business logic
+        Console.WriteLine("[CreateOrderActivity] Calling OrderManager.CreateOrderAsync...");
         var result = await _orderManager.CreateOrderAsync(order);
         if (!result.IsSuccess)
         {
+            Console.WriteLine($"[CreateOrderActivity] FAILED: {result.Errors.First().Message}");
             throw new InvalidOperationException(result.Errors.First().Message ?? "Failed to create order");
         }
 
-        // Map domain -> DTO
-        return _mapper.Map<OrderDto>(result.Value);
+        Console.WriteLine($"[CreateOrderActivity] Successfully created order {result.Value.OrderId}");
+
+        var dto = _mapper.Map<OrderDto>(result.Value);
+
+        Console.WriteLine($"[CreateOrderActivity] Returning OrderDto for order {dto.OrderId}");
+        return dto;
     }
 }

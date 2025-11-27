@@ -7,4 +7,5 @@ public interface IOrderManager
 {
     Task<IEnumerable<Order>> GetOrdersAsync();
     Task<Result<Order>> CreateOrderAsync(Order order);
+    Task DeleteOrderAsync(Guid orderId);
 }

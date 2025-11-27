@@ -13,11 +13,18 @@ public class GetProductPricesActivity : WorkflowActivity<List<Guid>, List<Produc
         _productService = productService;
     }
 
+
     public override async Task<List<ProductPriceDto>> RunAsync(
         WorkflowActivityContext context,
         List<Guid> productIds)
     {
-        return await _productService.GetProductPricesAsync(productIds);
+        Console.WriteLine($"[GetProductPricesActivity] Requesting prices for: {string.Join(", ", productIds)}");
+
+        var result = await _productService.GetProductPricesAsync(productIds);
+
+        Console.WriteLine($"[GetProductPricesActivity] Returned {result.Count} prices.");
+
+        return result;
     }
 
 }

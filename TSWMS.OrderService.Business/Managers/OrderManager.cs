@@ -35,29 +35,37 @@ public class OrderManager : IOrderManager
 
     public async Task<Result<Order>> CreateOrderAsync(Order order)
     {
+        Console.WriteLine("[OrderManager] CreateOrderAsync started.");
+
         if (order == null || !order.OrderItems.Any())
         {
+            Console.WriteLine("[OrderManager] Order invalid: must have at least one item.");
             return Result.Fail("Order must have at least one item.");
         }
+
+        Console.WriteLine("[OrderManager] Fetching product prices...");
 
         var productIds = order.OrderItems
             .Select(item => item.ProductId)
             .Distinct()
             .ToList();
 
-        // Fetch product prices via state store cache or Dapr direct service invocation
         var productPrices = await _productService.GetProductPricesAsync(productIds);
+
         if (productPrices == null || !productPrices.Any())
         {
+            Console.WriteLine("[OrderManager] FAILED: Could not fetch product prices.");
             return Result.Fail("Failed to retrieve product prices.");
         }
 
-        // Assign prices to the products in the order and calculate total
+        Console.WriteLine("[OrderManager] Assigning prices and calculating total.");
+
         foreach (var item in order.OrderItems)
         {
             var price = productPrices.FirstOrDefault(p => p.ProductId == item.ProductId);
             if (price == null)
             {
+                Console.WriteLine($"[OrderManager] FAILED: Missing price for product {item.ProductId}");
                 return Result.Fail($"Error calculating order total, price is missing for product {item.ProductId}");
             }
 
@@ -65,17 +73,19 @@ public class OrderManager : IOrderManager
             order.TotalPrice += item.UnitPrice * item.Quantity;
         }
 
-        // Set the order date
         order.OrderDate = DateTime.UtcNow;
 
-        // Create the order
+        Console.WriteLine("[OrderManager] Saving order in repository...");
+
         var createdOrder = await _orderRepository.CreateOrder(order);
 
-        // Check if the order creation was successful
         if (createdOrder == null)
         {
+            Console.WriteLine("[OrderManager] FAILED: Repository returned null order.");
             return Result.Fail("Error creating the order.");
         }
+
+        Console.WriteLine($"[OrderManager] Order created successfully with ID {createdOrder.OrderId}. Publishing event...");
 
         var orderCreatedEvent = new OrderCreatedEvent
         {
@@ -91,8 +101,27 @@ public class OrderManager : IOrderManager
 
         await _eventPublisher.PublishAsync(orderCreatedEvent);
 
+        Console.WriteLine("[OrderManager] OrderCreatedEvent published.");
+
         return createdOrder;
     }
+
+    public async Task DeleteOrderAsync(Guid orderId)
+    {
+        Console.WriteLine($"[OrderManager] DeleteOrderAsync called for OrderId: {orderId}");
+
+        if (orderId == Guid.Empty)
+        {
+            Console.WriteLine("[OrderManager] FAILED: OrderId cannot be empty.");
+            throw new ArgumentException("OrderId cannot be empty.", nameof(orderId));
+        }
+
+        Console.WriteLine("[OrderManager] Calling repository to delete order...");
+        await _orderRepository.DeleteOrderAsync(orderId);
+
+        Console.WriteLine($"[OrderManager] Order {orderId} deleted successfully.");
+    }
+
 
     //public async Task<Result<Order>> CreateOrderAsync(Order order)
     //{

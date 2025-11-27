@@ -1,5 +1,7 @@
-﻿using TSWMS.OrderService.Shared.Interfaces;
+﻿using FluentResults;
+using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Interfaces.Clients;
+using TSWMS.OrderService.Shared.Models.DTOs;
 using TSWMS.OrderService.Shared.Models.Responses;
 
 namespace TSWMS.OrderService.Business;
@@ -13,6 +15,23 @@ public class ProductService : IProductService
     {
         _productCache = productCache;
         _productClient = productClient;
+    }
+
+    public async Task<Result> UpdateProductStockAsync(List<UpdateProductStockDto> items)
+    {
+        Console.WriteLine("[ProductService] UpdateProductStockAsync called.");
+        Console.WriteLine($"[ProductService] Updating stock for {items.Count} items.");
+
+        foreach (var item in items)
+        {
+            Console.WriteLine($"[ProductService] - ProductId: {item.ProductId}, Quantity Ordered: {item.QuantityChange}");
+        }
+
+        var result = await _productClient.UpdateProductAvailableStockAsync(items);
+
+        Console.WriteLine($"[ProductService] UpdateProductAvailableStockAsync returned IsSuccess={result.IsSuccess}");
+
+        return result;
     }
 
     public async Task<List<ProductPriceDto>> GetProductPricesAsync(List<Guid> productIds)

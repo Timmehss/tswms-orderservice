@@ -9,7 +9,6 @@ using OpenTelemetry.Trace;
 using System.Text.Json;
 using TSWMS.OrderService.Api.MappingProfiles;
 using TSWMS.OrderService.Api.Middlewares;
-using TSWMS.OrderService.Api.Workflows;
 using TSWMS.OrderService.Api.Workflows.Activities;
 using TSWMS.OrderService.Business;
 using TSWMS.OrderService.Business.Managers;
@@ -49,8 +48,12 @@ public class Program
         builder.Services.AddDaprWorkflow(options =>
         {
             options.RegisterWorkflow<CreateOrderWorkflow>();
-            options.RegisterActivity<GetProductPricesActivity>();
+
+            options.RegisterActivity<CompensateCreateOrderActivity>();
+            options.RegisterActivity<CompensateProductStockUpdateActivity>();
             options.RegisterActivity<CreateOrderActivity>();
+            options.RegisterActivity<GetProductPricesActivity>();
+            options.RegisterActivity<UpdateProductStockActivity>();
         });
 
         // Add Dapr

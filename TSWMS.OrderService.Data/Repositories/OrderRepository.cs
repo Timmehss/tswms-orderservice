@@ -38,6 +38,23 @@ public class OrderRepository : IOrderRepository
         return order;
     }
 
+    public async Task DeleteOrderAsync(Guid orderId)
+    {
+        var order = await _orderDbContext.Orders
+            .Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+        if (order == null)
+        {
+            return;
+        }
+
+        _orderDbContext.OrderItems.RemoveRange(order.OrderItems);
+        _orderDbContext.Orders.Remove(order);
+
+        await _orderDbContext.SaveChangesAsync();
+    }
+
     //public async Task<Order> CreateOrder(Order order)
     //{
     //    if (order == null)
