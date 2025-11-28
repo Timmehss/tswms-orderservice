@@ -3,7 +3,9 @@
     "AppId": "productservice",
     "Endpoints": {
       "GetProductPrices": "/api/products/prices",
-      "UpdateProductStockAsync": "/api/products/update-stock"
+      "UpdateProductStockAsync": "/api/products/update-stock",
+      "DeductProductStockAsync": "/api/products/deduct-stock",
+      "RestoreProductStockAsync": "/api/products/restore-stock"
     }
   }
 }

@@ -1,4 +1,6 @@
-﻿namespace TSWMS.OrderService.Api.Dto;
+﻿using TSWMS.OrderService.Api.Dto;
+
+namespace TSWMS.OrderService.Shared.Models.Requests;
 
 public class UpdateStockRequest
 {

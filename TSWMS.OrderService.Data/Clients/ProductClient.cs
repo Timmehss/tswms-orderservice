@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using TSWMS.OrderService.Shared.Interfaces.Clients;
 using TSWMS.OrderService.Shared.Models.DTOs;
 using TSWMS.OrderService.Shared.Models.Responses;
+using TSWMS.OrderService.Shared.Results;
 
 namespace TSWMS.OrderService.Data.Clients;
 
@@ -14,6 +15,8 @@ public class ProductClient : IProductClient
     private readonly string _productServiceAppId;
     private readonly string _getProductPricesEndpoint;
     private readonly string _updateProductStockAsync;
+    private readonly string _deductProductStockAsync;
+    private readonly string _restoreProductStockAsync;
 
     public ProductClient(DaprClient daprClient, IConfiguration config)
     {
@@ -23,6 +26,48 @@ public class ProductClient : IProductClient
         _productServiceAppId = config["ProductService:AppId"];
         _getProductPricesEndpoint = config["ProductService:Endpoints:GetProductPrices"];
         _updateProductStockAsync = config["ProductService:Endpoints:UpdateProductStockAsync"];
+        _deductProductStockAsync = config["ProductService:Endpoints:DeductProductStockAsync"];
+        _restoreProductStockAsync = config["ProductService:Endpoints:RestoreProductStockAsync"];
+    }
+
+    public async Task<Result> DeductStockAsync(List<UpdateProductStockDto> updates)
+    {
+        try
+        {
+            var response = await _daprClient.InvokeMethodAsync<List<UpdateProductStockDto>, StockUpdateResultDto>(
+                HttpMethod.Put,
+                _productServiceAppId,
+                _deductProductStockAsync,
+                updates);
+
+            // 3. Mapping
+            if (response.Success) return Result.Ok();
+            return Result.Fail(response.ErrorMessage ?? "Unknown stock deduction error");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ProductClient] Exception invoking Dapr: {ex.Message}");
+            return Result.Fail($"System Failure: {ex.Message}");
+        }
+    }
+
+    public async Task<Result> RestoreStockAsync(List<UpdateProductStockDto> updates)
+    {
+        try
+        {
+            var response = await _daprClient.InvokeMethodAsync<List<UpdateProductStockDto>, StockUpdateResultDto>(
+                HttpMethod.Put,
+                _productServiceAppId,
+                _restoreProductStockAsync,
+                updates);
+
+            if (response.Success) return Result.Ok();
+            return Result.Fail(response.ErrorMessage ?? "Unknown stock restoration error");
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"System Failure: {ex.Message}");
+        }
     }
 
     public async Task<List<ProductPriceDto>> GetProductPricesAsync(List<Guid> productIds)
@@ -46,15 +91,15 @@ public class ProductClient : IProductClient
         Console.WriteLine($"[ProductClient] PUT -> AppId: {_productServiceAppId}, Endpoint: {_updateProductStockAsync}");
         Console.WriteLine($"[ProductClient] Updating {updates.Count} products.");
 
-        var result = await _daprClient.InvokeMethodAsync<List<UpdateProductStockDto>, Result>(
+        var result = await _daprClient.InvokeMethodAsync<List<UpdateProductStockDto>, bool>(
             HttpMethod.Put,
             _productServiceAppId,
             _updateProductStockAsync,
             updates);
 
-        Console.WriteLine($"[ProductClient] Result received. IsSuccess={result.IsSuccess}");
+        Console.WriteLine($"[ProductClient] Result received. IsSuccess={result}");
 
-        return result;
+        return Result.Ok();
     }
 
 }

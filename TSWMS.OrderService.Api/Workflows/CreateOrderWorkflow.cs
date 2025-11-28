@@ -11,6 +11,7 @@ public class CreateOrderWorkflow : Workflow<CreateOrderDto, OrderDto>
     {
         OrderDto? orderDto = null;
         bool stockDeducted = false;
+
         try
         {
             if (!context.IsReplaying)
@@ -49,12 +50,9 @@ public class CreateOrderWorkflow : Workflow<CreateOrderDto, OrderDto>
                 Console.WriteLine("[CreateOrderWorkflow] Deducting stock.");
             }
 
-            var stockUpdateResult = await context.CallActivityAsync<bool>(
-                nameof(UpdateProductStockActivity),
+            stockDeducted = await context.CallActivityAsync<bool>(
+                nameof(DeductProductStockActivity),
                 createOrderDto.OrderItems);
-
-            // Only mark as deducted if explicitly successful
-            stockDeducted = stockUpdateResult;
 
             if (!context.IsReplaying)
             {
@@ -77,6 +75,7 @@ public class CreateOrderWorkflow : Workflow<CreateOrderDto, OrderDto>
                 {
                     Console.WriteLine("[CreateOrderWorkflow] Running compensate order creation.");
                 }
+
                 await context.CallActivityAsync(
                     nameof(CompensateCreateOrderActivity),
                     orderDto);
@@ -89,8 +88,9 @@ public class CreateOrderWorkflow : Workflow<CreateOrderDto, OrderDto>
                 {
                     Console.WriteLine("[CreateOrderWorkflow] Running compensate stock update.");
                 }
+
                 await context.CallActivityAsync(
-                    nameof(CompensateProductStockUpdateActivity),
+                    nameof(RestoreProductStockActivity),
                     createOrderDto.OrderItems);
             }
 

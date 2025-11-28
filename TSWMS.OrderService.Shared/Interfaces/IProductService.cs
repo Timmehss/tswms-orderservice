@@ -8,4 +8,6 @@ public interface IProductService
 {
     Task<Result> UpdateProductStockAsync(List<UpdateProductStockDto> items);
     Task<List<ProductPriceDto>> GetProductPricesAsync(List<Guid> productIds);
+    Task<Result> DeductStockAsync(List<UpdateProductStockDto> items);
+    Task<Result> RestoreStockAsync(List<UpdateProductStockDto> items);
 }

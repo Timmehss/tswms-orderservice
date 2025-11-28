@@ -119,36 +119,4 @@ public class OrderController : ControllerBase
         }
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
-    //{
-    //    if (orderDto == null || orderDto.OrderItems == null || !orderDto.OrderItems.Any())
-    //    {
-    //        return BadRequest("Order must have at least one item.");
-    //    }
-
-    //    var workflowInstanceId = Guid.NewGuid().ToString();
-
-    //    await _workflowClient.ScheduleNewWorkflowAsync(
-    //        name: nameof(CreateOrderWorkflow),
-    //        instanceId: workflowInstanceId,
-    //        input: orderDto);
-
-    //    return Accepted(new { workflowInstanceId });
-    //}
-
-    //[HttpPost]
-    //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
-    //{
-    //    var order = _mapper.Map<Order>(orderDto);
-
-    //    var result = await _orderManager.CreateOrderAsync(order);
-    //    if (result.IsFailed)
-    //    {
-    //        return BadRequest(result.Errors.First().Message);
-    //    }
-
-    //    return Ok(result.Value);
-    //}
-
 }

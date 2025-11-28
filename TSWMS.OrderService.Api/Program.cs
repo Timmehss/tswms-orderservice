@@ -50,10 +50,10 @@ public class Program
             options.RegisterWorkflow<CreateOrderWorkflow>();
 
             options.RegisterActivity<CompensateCreateOrderActivity>();
-            options.RegisterActivity<CompensateProductStockUpdateActivity>();
+            options.RegisterActivity<RestoreProductStockActivity>();
             options.RegisterActivity<CreateOrderActivity>();
             options.RegisterActivity<GetProductPricesActivity>();
-            options.RegisterActivity<UpdateProductStockActivity>();
+            options.RegisterActivity<DeductProductStockActivity>();
         });
 
         // Add Dapr
