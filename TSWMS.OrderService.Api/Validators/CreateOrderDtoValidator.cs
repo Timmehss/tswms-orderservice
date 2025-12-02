@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TSWMS.OrderService.Api.Dto;
+using TSWMS.OrderService.Shared.Models.DTOs;
 
 public class CreateOrderDtoValidator : AbstractValidator<CreateOrderDto>
 {

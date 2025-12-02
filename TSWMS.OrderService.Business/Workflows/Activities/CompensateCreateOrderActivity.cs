@@ -1,8 +1,8 @@
 ﻿using Dapr.Workflow;
-using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Interfaces;
+using TSWMS.OrderService.Shared.Models.DTOs;
 
-namespace TSWMS.OrderService.Api.Workflows.Activities;
+namespace TSWMS.OrderService.Business.Workflows.Activities;
 
 public class CompensateCreateOrderActivity : WorkflowActivity<OrderDto, bool>
 {

@@ -2,7 +2,7 @@
 using TSWMS.OrderService.Shared.Models;
 using TSWMS.OrderService.Shared.Models.DTOs;
 
-namespace TSWMS.OrderService.Api.MappingProfiles;
+namespace TSWMS.OrderService.Business.MappingProfiles;
 
 public class OrderMappingProfile : Profile
 {

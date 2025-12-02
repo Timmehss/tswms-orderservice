@@ -1,7 +1,6 @@
-﻿using TSWMS.OrderService.Shared.Models.DTOs;
-using TSWMS.OrderService.Shared.Models.Responses;
+﻿using TSWMS.OrderService.Shared.Models.Responses;
 
-namespace TSWMS.OrderService.Api.Dto;
+namespace TSWMS.OrderService.Shared.Models.DTOs;
 
 public class CreateOrderActivityDto
 {

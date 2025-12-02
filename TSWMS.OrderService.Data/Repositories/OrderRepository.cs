@@ -55,18 +55,4 @@ public class OrderRepository : IOrderRepository
         await _orderDbContext.SaveChangesAsync();
     }
 
-    //public async Task<Order> CreateOrder(Order order)
-    //{
-    //    if (order == null)
-    //    {
-    //        throw new ArgumentNullException(nameof(order), "Order cannot be null.");
-    //    }
-
-    //    await _orderDbContext.Orders.AddAsync(order);
-
-    //    await _orderDbContext.SaveChangesAsync();
-
-    //    return order;
-    //}
-
 }

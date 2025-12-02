@@ -1,12 +1,8 @@
-﻿#region Usings
-
-using AutoMapper;
+﻿using AutoMapper;
 using Dapr.Workflow;
 using Microsoft.AspNetCore.Mvc;
-using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Interfaces;
-
-#endregion
+using TSWMS.OrderService.Shared.Models.DTOs;
 
 namespace TSWMS.OrderService.Api.Controllers;
 
@@ -15,15 +11,20 @@ namespace TSWMS.OrderService.Api.Controllers;
 public class OrderController : ControllerBase
 {
     private readonly DaprWorkflowClient _workflowClient;
-
     private readonly IOrderManager _orderManager;
     private readonly IMapper _mapper;
+    private readonly ILogger<OrderController> _logger;
 
-    public OrderController(DaprWorkflowClient workflowClient, IOrderManager orderManager, IMapper mapper)
+    public OrderController(
+        DaprWorkflowClient workflowClient,
+        IOrderManager orderManager,
+        IMapper mapper,
+        ILogger<OrderController> logger)
     {
         _workflowClient = workflowClient;
         _orderManager = orderManager;
         _mapper = mapper;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -40,82 +41,79 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
     {
-        Console.WriteLine("[OrderService: Controller] Received CreateOrder request.");
+        _logger.LogInformation("[OrderController] Received CreateOrder request.");
 
+        // Validation
         if (createOrderDto == null || createOrderDto.OrderItems == null || !createOrderDto.OrderItems.Any())
         {
-            Console.WriteLine("[OrderService: Controller] Invalid request: missing order items.");
+            _logger.LogWarning("[OrderController] Invalid request: missing order items.");
             return BadRequest("Order must have at least one item.");
         }
+
         if (createOrderDto.OrderItems.Any(i => i.Quantity <= 0))
         {
-            throw new ArgumentException("Quantity must be positive");
+            return BadRequest("Quantity must be positive for all items.");
         }
-
-        Console.WriteLine($"[OrderService: Controller] Order contains {createOrderDto.OrderItems.Count} items.");
 
         var workflowInstanceId = Guid.NewGuid().ToString();
 
-        Console.WriteLine($"[OrderService: Controller] Scheduling workflow instance {workflowInstanceId}...");
+        _logger.LogInformation("Scheduling workflow instance {InstanceId} for {ItemCount} items.",
+            workflowInstanceId, createOrderDto.OrderItems.Count);
 
+        // Start the workflow but DO NOT wait for it
         await _workflowClient.ScheduleNewWorkflowAsync(
             name: nameof(CreateOrderWorkflow),
             instanceId: workflowInstanceId,
             input: createOrderDto
         );
 
-        Console.WriteLine($"[OrderService: Controller] Workflow scheduled. Waiting for completion...");
+        // Build the status URL so the client knows where to check
+        var statusUrl = Url.Action(nameof(GetOrderStatus), new { instanceId = workflowInstanceId });
 
-        WorkflowState workflowState;
+        // Return 202 Accepted immediately
+        return Accepted(statusUrl, new
+        {
+            WorkflowInstanceId = workflowInstanceId,
+            Status = "Pending",
+            CheckStatusUrl = statusUrl
+        });
+    }
+
+    [HttpGet("status/{instanceId}")]
+    public async Task<IActionResult> GetOrderStatus(string instanceId)
+    {
+        _logger.LogDebug("Checking status for workflow {InstanceId}", instanceId);
+
         try
         {
-            workflowState = await _workflowClient.WaitForWorkflowCompletionAsync(
-                workflowInstanceId,
-                getInputsAndOutputs: true,
-                cancellation: cancellationToken
-            );
+            var state = await _workflowClient.GetWorkflowStateAsync(instanceId, true);
 
-            Console.WriteLine($"[OrderService: Controller] Workflow {workflowInstanceId} finished with status: {workflowState.RuntimeStatus}");
+            if (state == null)
+            {
+                return NotFound($"Workflow {instanceId} not found.");
+            }
+
+            // Map Dapr status to API response
+            var response = new
+            {
+                WorkflowInstanceId = instanceId,
+                RuntimeStatus = state.RuntimeStatus.ToString(),
+                CreatedAt = state.CreatedAt,
+                LastUpdatedAt = state.LastUpdatedAt,
+                Output = state.RuntimeStatus == WorkflowRuntimeStatus.Completed
+                         ? state.ReadOutputAs<OrderDto>()
+                         : null,
+                Error = state.FailureDetails?.ErrorMessage
+            };
+
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[OrderService: Controller] ERROR while waiting for workflow: {ex.Message}");
-
-            return StatusCode(500, new
-            {
-                workflowInstanceId,
-                error = ex.Message
-            });
-        }
-
-        // Interpret result
-        switch (workflowState.RuntimeStatus)
-        {
-            case WorkflowRuntimeStatus.Completed:
-                Console.WriteLine($"[OrderService: Controller] Workflow {workflowInstanceId} COMPLETED successfully.");
-                return Ok(workflowState.ReadOutputAs<OrderDto>());
-
-            case WorkflowRuntimeStatus.Failed:
-                Console.WriteLine($"[OrderService: Controller] Workflow FAILED: {workflowState.FailureDetails?.ErrorMessage}");
-                return StatusCode(500, new
-                {
-                    workflowInstanceId,
-                    error = workflowState.FailureDetails?.ErrorMessage ?? "Workflow failed"
-                });
-
-            case WorkflowRuntimeStatus.Terminated:
-                Console.WriteLine($"[OrderService: Controller] Workflow {workflowInstanceId} TERMINATED.");
-                return StatusCode(500, new
-                {
-                    workflowInstanceId,
-                    error = "Workflow was terminated"
-                });
-
-            default:
-                Console.WriteLine($"[OrderService: Controller] Workflow ended in unexpected state.");
-                return Accepted(new { workflowInstanceId });
+            _logger.LogError(ex, "Error retrieving workflow status for {InstanceId}", instanceId);
+            return StatusCode(500, "Error retrieving workflow status.");
         }
     }
 

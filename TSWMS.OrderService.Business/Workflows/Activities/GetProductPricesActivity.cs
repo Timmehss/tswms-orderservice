@@ -2,7 +2,7 @@
 using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Models.Responses;
 
-namespace TSWMS.OrderService.Api.Workflows.Activities;
+namespace TSWMS.OrderService.Business.Workflows.Activities;
 
 public class GetProductPricesActivity : WorkflowActivity<List<Guid>, List<ProductPriceDto>>
 {

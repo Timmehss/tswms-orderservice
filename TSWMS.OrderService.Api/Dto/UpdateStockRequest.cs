@@ -1,4 +1,4 @@
-﻿using TSWMS.OrderService.Api.Dto;
+﻿using TSWMS.OrderService.Shared.Models.DTOs;
 
 namespace TSWMS.OrderService.Shared.Models.Requests;
 

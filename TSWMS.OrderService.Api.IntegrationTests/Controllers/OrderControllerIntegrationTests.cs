@@ -1,8 +1,8 @@
 ﻿using Moq;
 using Newtonsoft.Json;
 using System.Net;
-using TSWMS.OrderService.Api.Dto;
 using TSWMS.OrderService.Shared.Models;
+using TSWMS.OrderService.Shared.Models.DTOs;
 using TSWMS.OrderService.Shared.Testing;
 
 namespace TSWMS.OrderService.Api.IntegrationTests.Controllers;

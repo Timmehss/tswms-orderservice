@@ -3,6 +3,7 @@ using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Interfaces.Clients;
 using TSWMS.OrderService.Shared.Interfaces.Publishers;
 using TSWMS.OrderService.Shared.Models;
+using TSWMS.OrderService.Shared.Models.Responses;
 
 namespace TSWMS.OrderService.Business.Managers;
 
@@ -31,28 +32,13 @@ public class OrderManager : IOrderManager
         return await _orderRepository.GetOrders();
     }
 
-    public async Task<Result<Order>> CreateOrderAsync(Order order)
+    public async Task<Result<Order>> CreateOrderAsync(Order order, List<ProductPriceDto> productPrices)
     {
         Console.WriteLine("[OrderManager] CreateOrderAsync started.");
 
-        if (order == null || !order.OrderItems.Any())
-        {
-            Console.WriteLine("[OrderManager] Order invalid: must have at least one item.");
-            return Result.Fail("Order must have at least one item.");
-        }
-
-        Console.WriteLine("[OrderManager] Fetching product prices...");
-
-        var productIds = order.OrderItems
-            .Select(item => item.ProductId)
-            .Distinct()
-            .ToList();
-
-        var productPrices = await _productService.GetProductPricesAsync(productIds);
         if (productPrices == null || !productPrices.Any())
         {
-            Console.WriteLine("[OrderManager] FAILED: Could not fetch product prices.");
-            return Result.Fail("Failed to retrieve product prices.");
+            return Result.Fail("No product prices provided to CreateOrderAsync.");
         }
 
         Console.WriteLine("[OrderManager] Assigning prices and calculating total.");

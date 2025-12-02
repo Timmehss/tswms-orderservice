@@ -1,4 +1,4 @@
-﻿namespace TSWMS.OrderService.Api.Dto;
+﻿namespace TSWMS.OrderService.Shared.Models.DTOs;
 
 public class OrderItemDto
 {
