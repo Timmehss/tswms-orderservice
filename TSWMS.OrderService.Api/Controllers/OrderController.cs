@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Dapr.Workflow;
 using Microsoft.AspNetCore.Mvc;
+using TSWMS.OrderService.Api.Extensions;
 using TSWMS.OrderService.Shared.Interfaces;
 using TSWMS.OrderService.Shared.Models.DTOs;
 
@@ -84,37 +85,15 @@ public class OrderController : ControllerBase
     [HttpGet("status/{instanceId}")]
     public async Task<IActionResult> GetOrderStatus(string instanceId)
     {
-        _logger.LogDebug("Checking status for workflow {InstanceId}", instanceId);
-
-        try
+        var state = await _workflowClient.GetWorkflowStateAsync(instanceId, true);
+        if (state == null)
         {
-            var state = await _workflowClient.GetWorkflowStateAsync(instanceId, true);
-
-            if (state == null)
-            {
-                return NotFound($"Workflow {instanceId} not found.");
-            }
-
-            // Map Dapr status to API response
-            var response = new
-            {
-                WorkflowInstanceId = instanceId,
-                RuntimeStatus = state.RuntimeStatus.ToString(),
-                CreatedAt = state.CreatedAt,
-                LastUpdatedAt = state.LastUpdatedAt,
-                Output = state.RuntimeStatus == WorkflowRuntimeStatus.Completed
-                         ? state.ReadOutputAs<OrderDto>()
-                         : null,
-                Error = state.FailureDetails?.ErrorMessage
-            };
-
-            return Ok(response);
+            return NotFound($"Workflow {instanceId} not found.");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving workflow status for {InstanceId}", instanceId);
-            return StatusCode(500, "Error retrieving workflow status.");
-        }
+
+        var response = state.ToApiResponse(instanceId);
+
+        return Ok(response);
     }
 
 }

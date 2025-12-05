@@ -63,27 +63,41 @@ public class CreateOrderWorkflow : Workflow<CreateOrderDto, OrderDto>
         }
         catch (Exception ex)
         {
-            if (!context.IsReplaying) Console.WriteLine($"[CreateOrderWorkflow] ERROR: {ex.Message}. Starting compensation...");
+            if (!context.IsReplaying)
+                Console.WriteLine($"[CreateOrderWorkflow] ERROR: {ex.Message}. Checking for necessary compensations...");
+
+            bool compensationPerformed = false;
 
             // COMPENSATIONS
             if (stockDeducted)
             {
-                if (!context.IsReplaying) Console.WriteLine("[CreateOrderWorkflow] Compensating: Restoring Stock.");
+                if (!context.IsReplaying)
+                    Console.WriteLine("[CreateOrderWorkflow] Compensating: Restoring Stock.");
 
                 await context.CallActivityAsync(
                     nameof(RestoreProductStockActivity),
                     createOrderDto.OrderItems,
                     retryOptions);
+
+                compensationPerformed = true;
             }
 
             if (orderDto != null)
             {
-                if (!context.IsReplaying) Console.WriteLine("[CreateOrderWorkflow] Compensating: Deleting Order.");
+                if (!context.IsReplaying)
+                    Console.WriteLine("[CreateOrderWorkflow] Compensating: Deleting Order.");
 
                 await context.CallActivityAsync(
                     nameof(CompensateCreateOrderActivity),
                     orderDto,
                     retryOptions);
+
+                compensationPerformed = true;
+            }
+
+            if (!compensationPerformed && !context.IsReplaying)
+            {
+                Console.WriteLine("[CreateOrderWorkflow] Failure occurred before state changes. No compensation needed.");
             }
 
             throw;
