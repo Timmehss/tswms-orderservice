@@ -19,6 +19,7 @@ COPY TSWMS.OrderService.Shared/ TSWMS.OrderService.Shared/
 COPY TSWMS.OrderService.Business.UnitTests/ TSWMS.OrderService.Business.UnitTests/
 COPY TSWMS.OrderService.Data.UnitTests/ TSWMS.OrderService.Data.UnitTests/
 COPY TSWMS.OrderService.Api.IntegrationTests/ TSWMS.OrderService.Api.IntegrationTests/
+COPY TSWMS.OrderService.Api.IntegrationTests/ TSWMS.OrderService.DaprTests/
 
 # Restore dependencies
 RUN dotnet restore "TSWMS.OrderService.sln"
