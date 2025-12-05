@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Toxiproxy.Net.Toxics;
-using TSWMS.IntegrationTests;
 using TSWMS.OrderService.Shared.Models.DTOs;
 
 namespace TSWMS.OrderService.DaprTests;

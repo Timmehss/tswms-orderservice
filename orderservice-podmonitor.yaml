@@ -3,6 +3,8 @@ kind: PodMonitor
 metadata:
   name: orderservice
   namespace: default
+  labels:
+    release: monitoring 
 spec:
   selector:
     matchLabels:
@@ -10,4 +12,7 @@ spec:
   podMetricsEndpoints:
   - port: http
     path: /metrics
+    interval: 15s
+  - targetPort: 9090
+    path: /
     interval: 15s

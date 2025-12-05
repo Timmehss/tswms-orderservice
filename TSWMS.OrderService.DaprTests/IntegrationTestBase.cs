@@ -1,7 +1,6 @@
 ﻿using Toxiproxy.Net;
-using Xunit;
 
-namespace TSWMS.IntegrationTests;
+namespace TSWMS.OrderService.DaprTests;
 
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
