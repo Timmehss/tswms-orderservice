@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - develop-dapr
 
 jobs:
   build-test-analyze:
