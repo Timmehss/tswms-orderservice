@@ -1,23 +1,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: orderservice-sidecar
+  name: dapr-system-monitor
   namespace: monitoring
   labels:
     release: monitoring
 spec:
-  selector:
-    matchLabels:
-      app: orderservice
+  selector: {} 
   namespaceSelector:
     matchNames:
-      - default
+      - dapr-system
   podMetricsEndpoints:
-  # Scrape the .NET App
-  - port: http
-    path: /metrics
-    interval: 15s
-  # Scrape the Dapr Sidecar
   - targetPort: 9090
-    path: /
+    path: /metrics 
     interval: 15s
