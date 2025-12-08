@@ -1,0 +1,20 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: tswms-resiliency-policy
+spec:
+  scopes:
+    - orderservice
+  
+  policies:
+    circuitBreakers:
+      productServiceCB:
+        maxRequests: 1 
+        interval: 0s 
+        timeout: 30s 
+        trip: consecutiveFailures >= 5 
+      
+  targets:
+    apps:
+      productservice:
+        circuitBreaker: productServiceCB
