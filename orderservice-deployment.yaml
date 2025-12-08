@@ -17,12 +17,12 @@ spec:
         dapr.io/app-port: "3200"
         dapr.io/metrics-port: "9090"
         dapr.io/sidecar-cpu-request: "100m"
-        dapr.io/sidecar-cpu-limit: "1000m" 
+        dapr.io/sidecar-cpu-limit: "500m"
         dapr.io/sidecar-memory-request: "128Mi"
-        dapr.io/sidecar-memory-limit: "384Mi"
-        dapr.io/sidecar-liveness-probe-delay-seconds: "60"
-        dapr.io/sidecar-readiness-probe-delay-seconds: "60"
-        dapr.io/sidecar-liveness-probe-timeout-seconds: "10"
+        dapr.io/sidecar-memory-limit: "256Mi"
+        dapr.io/sidecar-liveness-probe-delay-seconds: "15"
+        dapr.io/sidecar-readiness-probe-delay-seconds: "15"
+        dapr.io/sidecar-liveness-probe-timeout-seconds: "5"
         dapr.io/sidecar-liveness-probe-period-seconds: "20"
     spec:
       containers:
@@ -44,5 +44,5 @@ spec:
             memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "300Mi"
+            memory: "512Mi"
             cpu: "500m"
