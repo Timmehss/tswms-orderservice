@@ -18,8 +18,8 @@ spec:
         dapr.io/metrics-port: "9090"
         dapr.io/sidecar-cpu-request: "100m"
         dapr.io/sidecar-cpu-limit: "500m"
-        dapr.io/sidecar-memory-request: "128Mi"
-        dapr.io/sidecar-memory-limit: "256Mi"
+        dapr.io/sidecar-memory-request: "64Mi"
+        dapr.io/sidecar-memory-limit: "128Mi"
         dapr.io/sidecar-liveness-probe-delay-seconds: "15"
         dapr.io/sidecar-readiness-probe-delay-seconds: "15"
         dapr.io/sidecar-liveness-probe-timeout-seconds: "5"
@@ -44,5 +44,5 @@ spec:
             memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "512Mi"
+            memory: "300Mi"
             cpu: "500m"

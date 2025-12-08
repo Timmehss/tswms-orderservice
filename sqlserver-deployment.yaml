@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db-order
-  labels:
-    app: db-order
 spec:
   replicas: 1
   selector:
@@ -16,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sqlserver
-          image: mcr.microsoft.com/mssql/server:2019-latest
+          image: mcr.microsoft.com/azure-sql-edge:latest
           ports:
             - containerPort: 1433
           env:
@@ -26,10 +24,10 @@ spec:
               value: "TimTest123"
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "200m"
+              memory: "256Mi"
+              cpu: "100m"
             limits:
-              memory: "2Gi"
+              memory: "1Gi"
               cpu: "1000m"
 ---
 apiVersion: v1
