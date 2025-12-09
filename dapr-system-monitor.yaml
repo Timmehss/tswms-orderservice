@@ -6,11 +6,20 @@ metadata:
   labels:
     release: monitoring
 spec:
-  selector: {} 
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: dapr
   namespaceSelector:
     matchNames:
       - dapr-system
+  
+  podTargetLabels:
+    - app
+    - app.kubernetes.io/name
+    - app.kubernetes.io/part-of
+    - app.kubernetes.io/version
   podMetricsEndpoints:
   - targetPort: 9090
     path: /metrics 
     interval: 15s
+    scheme: http
